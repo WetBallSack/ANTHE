@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, Variants } from 'motion/react';
 import { Cpu, ArrowRight, Zap, Bluetooth, Network, Monitor, MousePointer, Sliders, RefreshCw, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { Part } from '../types';
@@ -235,7 +235,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
   const COMPARISONS = t.overview.comps.rows;
 
   // Motion animation parameters
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -245,7 +245,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
     }
   };
 
-  const cardItemVariants = {
+  const cardItemVariants: Variants = {
     hidden: { opacity: 0, y: 25 },
     show: { 
       opacity: 1, 

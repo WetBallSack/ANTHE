@@ -86,6 +86,7 @@ export const translations = {
     specs: {
       badge: "PRODUCT MECHANICS",
       title: "Conceptual Design FAQ",
+      desc: "Detailed answers explaining why physical-layer redirection acts as the safest and most solid translation loop.",
       faqs: [
         {
           q: "Why is a physical hardware connection required to bypass Vanguard or EAC?",
@@ -434,6 +435,7 @@ export const translations = {
     specs: {
       badge: "产品底盘技术",
       title: "概念设计常见解答",
+      desc: "深入解答了为什么使用物理层蓝牙重定向能够作为全世界最坚如磐石的防被禁防隔离网桥设计。",
       faqs: [
         {
           q: "为什么绕过 Vanguard 或 EAC 需要这套专门的物理硬件连接？",
@@ -568,7 +570,8 @@ export const translations = {
           {
             metric: "起步入门售价",
             anthe: "$15 美金 / 激活即终身享用",
-            kmbox: "折合 300 - 550 元 + 自备运费/溢价购买"
+            kmbox: "折合 300 - 550 元 + 自备运费/溢价购买",
+            makcu: "折合 250 - 450 元 + 跨国运费与高溢价"
           },
           {
             metric: "组装和连线复杂程度",
@@ -781,6 +784,7 @@ export const translations = {
     specs: {
       badge: "製品底盤技術",
       title: "ハード技術のFAQ",
+      desc: "物理層でのリダイレクションが、なぜ最も安全で強固な変換ループとして機能するのかを詳しく解説します。",
       faqs: [
         {
           q: "なぜ Vanguard や EAC などを回避するためにこの外付け双方向連携が必須なのですか？",
@@ -915,7 +919,8 @@ export const translations = {
           {
             metric: "主力価格",
             anthe: "わずか 15ドル / 一度の購入で生涯アクティブ",
-            kmbox: "およそ 45〜80米ドル + 高額な国際送料、手数料、数週間の待機"
+            kmbox: "およそ 45〜80米ドル + 高額な国際送料、手数料、数週間の待機",
+            makcu: "およそ 35〜60米ドル + 高額な国際送料、手数料、数週間の待機"
           },
           {
             metric: "導入における配線難易度",

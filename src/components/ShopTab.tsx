@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import AntheLogo from './AntheLogo';
+import Markdown from 'react-markdown';
+import { markdownContent } from './TermsTab';
 
 export default function ShopTab() {
   const { language, t } = useLanguage();
@@ -214,7 +216,6 @@ export default function ShopTab() {
   };
 
   const features = featuresDict[language as 'en' | 'zh' | 'ja'] || featuresDict.en;
-  const sections = t.terms?.sections || [];
 
   return (
     <motion.div
@@ -593,22 +594,9 @@ export default function ShopTab() {
                 onScroll={handleTOSScroll}
                 className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs text-stone-650 leading-relaxed font-light bg-stone-50/50 p-4 rounded-2xl border border-stone-200/40"
               >
-                {/* Introduction of terms */}
-                <div className="p-3 bg-stone-100/50 border border-stone-205/30 rounded-xl space-y-1">
-                  <span className="font-serif font-bold text-stone-900 block text-[11px]">{t.terms?.calloutTitle}</span>
-                  <p className="text-[10.5px] text-stone-500 font-light font-sans">{t.terms?.calloutDesc}</p>
+                <div className="markdown-body text-stone-700 font-light prose-headings:font-serif prose-headings:font-normal prose-h1:text-xl prose-h2:text-sm prose-a:text-stone-900 prose-a:underline prose-strong:font-bold prose-strong:text-stone-900 prose-hr:border-stone-200 text-[11px] prose-p:text-[11px] prose-li:text-[11px]">
+                  <Markdown>{markdownContent}</Markdown>
                 </div>
-
-                {sections.map((sec: any, idx: number) => (
-                  <section key={idx} className="space-y-1 pb-3 border-b border-stone-100 last:border-b-0">
-                    <h4 className="font-serif text-[12px] font-bold text-stone-950 flex items-center gap-1.5">
-                      <span className="font-mono text-[10px] text-stone-400">{sec.num}</span> {sec.title}
-                    </h4>
-                    <p className="whitespace-pre-line text-[11px] text-stone-605">
-                      {sec.desc}
-                    </p>
-                  </section>
-                ))}
               </div>
 
               {/* Bottom Buttons / Confirms */}

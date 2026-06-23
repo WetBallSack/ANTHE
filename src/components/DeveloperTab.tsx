@@ -1,636 +1,624 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Terminal, Copy, Check, Server, Cpu, Layers, Radio, Code2 } from 'lucide-react';
-import { useLanguage } from '../LanguageContext';
+import { motion } from 'motion/react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Copy, Check } from 'lucide-react';
 
-function highlightCode(code: string, lang: 'csharp' | 'cpp' | 'python'): string {
-  // Escape HTML first
-  let html = code
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+const markdownContent = `# Integration Guide — Sending Mouse Input to \`[x].exe\`
 
-  const placeholders: {type: string, val: string}[] = [];
-  const getPlaceholder = (type: string, val: string) => {
-    placeholders.push({type, val});
-    return `__PH_${placeholders.length - 1}__`;
-  };
+\`[x].exe\` is a compiled Bluetooth HID mouse emulator. Once running, it listens for mouse input over UDP and re-emits it as a standard Bluetooth mouse to any paired host device (e.g. a Windows PC). This guide explains everything your application needs to send mouse movements, button presses, and releases to it.
 
-  // Match and replace comments
-  if (lang === 'python') {
-    html = html.replace(/(#.*)/g, (match) => getPlaceholder('comment', match));
-  } else {
-    html = html.replace(/(\/\*[\s\S]*?\*\/|\/\/.*)/g, (match) => getPlaceholder('comment', match));
-  }
+## How It Works
 
-  // Match and replace string literals
-  html = html.replace(/(&quot;[\s\S]*?&quot;|'[\s\S]*?')/g, (match) => getPlaceholder('string', match));
+Your application acts as a **UDP sender**. \`[x].exe\` acts as a **UDP receiver**. For every mouse event your app wants to produce, it packs the movement and button state into a 7-byte binary packet and fires it to the machine running \`[x].exe\`.
 
-  // Numbers and hex values
-  html = html.replace(/\b(0x[0-9a-fA-F]+|\d+)\b/g, (match) => getPlaceholder('number', match));
+\`\`\`diagram
+Your App  ──[ 7-byte UDP packet ]──►  [x].exe  ──[ BT HID ]──►  Paired Host
+\`\`\`
 
-  // Keywords
-  const keywords = [
-    'using', 'namespace', 'public', 'class', 'private', 'const', 'readonly', 'byte', 'string', 'int', 'async', 'Task', 'await', 'try', 'catch', 'void', 'new', 'return', 'ifndef', 'define', 'include', 'constexpr', 'uint8_t', 'int16_t', 'struct', 'static_assert', 'sizeof', 'double', 'bool', 'throw', 'import', 'def', 'self', 'and', 'or', 'not', 'elif', 'else', 'if', 'template', 'std', 'short', 'static', 'nullptr', 'false', 'true', 'as', 'except', 'pass'
-  ];
-  
-  keywords.forEach(kw => {
-    const regex = new RegExp(`\\b(${kw})\\b`, 'g');
-    html = html.replace(regex, (match) => getPlaceholder('keyword', match));
-  });
+There is no handshake, no connection, and no acknowledgement. UDP is fire-and-forget by design. \`[x].exe\` validates each packet by checking a magic byte at offset 0 and silently discards anything malformed.
 
-  // Types / Built-ins
-  html = html.replace(/\b(UdpClient|IPEndPoint|IPAddress|SocketException|WinsockUdpStreamer|WSADATA|SOCKET|SOCK_DGRAM|IPPROTO_UDP|sockaddr_in|AF_INET|BlockingIOError|Exception|Console)\b/g, (match) => getPlaceholder('type', match));
+## Prerequisites
 
-  // Restore placeholders with styling
-  for (let i = placeholders.length - 1; i >= 0; i--) {
-    const p = placeholders[i];
-    let cls = "";
-    if (p.type === 'comment') cls = "text-stone-500 italic";
-    else if (p.type === 'string') cls = "text-amber-300";
-    else if (p.type === 'number') cls = "text-amber-200";
-    else if (p.type === 'keyword') cls = "text-indigo-400 font-semibold";
-    else if (p.type === 'type') cls = "text-teal-400 font-medium";
+- \`[x].exe\` is running on its host machine and is reachable over the network from your machine.
+- Both machines are on the same network (LAN, Wi-Fi, or direct Ethernet).
+- UDP port \`5555\` (default) is not blocked by a firewall on the \`[x].exe\` host.
+- You know the IP address of the machine running \`[x].exe\`.
 
-    html = html.replace(`__PH_${i}__`, `<span class="${cls}">${p.val}</span>`);
-  }
+To verify connectivity before integrating, send a test packet from the command line:
 
-  return html;
+\`\`\`bash
+# Linux / macOS
+echo -ne '\\xAB\\x0A\\x00\\x00\\x00\\x00\\x00' | nc -u -w1 <TARGET_IP> 5555
+
+# Windows PowerShell
+$bytes = [byte[]](0xAB, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00)
+$udp = New-Object System.Net.Sockets.UdpClient
+$udp.Send($bytes, $bytes.Length, "<TARGET_IP>", 5555)
+\`\`\`
+
+A \`dx\` of \`+10\` with no buttons and sequence \`0\` is a safe test packet. If \`[x].exe\` is running with \`log_level = 3\` (debug), you will see the packet logged on its console.
+
+## The Wire Protocol
+
+Every packet is exactly **7 bytes**, little-endian.
+
+| Offset | Size | Field | Type | Description |
+|---|---|---|---|---|
+| \`0\` | 1 byte | \`magic\` | \`uint8\` | Always \`0xAB\`. Packets with any other value are silently dropped. Use this as a sanity check. |
+| \`1\` | 2 bytes | \`dx\` | \`int16\` | Relative X movement. Positive = right. Range: -32768 to +32767. |
+| \`3\` | 2 bytes | \`dy\` | \`int16\` | Relative Y movement. Positive = down. Range: -32768 to +32767. |
+| \`5\` | 1 byte | \`buttons\` | \`uint8\` | Button bitmask (see below). |
+| \`6\` | 1 byte | \`seq\` | \`uint8\` | Rolling sequence counter, 0–255. Increment by 1 per packet; wraps at 255 → 0. |
+
+All multi-byte fields use **little-endian** byte order.
+
+### Button Bitmask
+
+\`[x].exe\` reads bits 0–2 of the \`buttons\` byte. Higher bits are ignored.
+
+| Bit | Button |
+|---|---|
+| \`0\` | Left |
+| \`1\` | Right |
+| \`2\` | Middle |
+
+Examples:
+
+| Desired State             | \`buttons\` value |
+|---------------------------|-----------------|
+| No buttons held           | \`0x00\`          |
+| Left button held          | \`0x01\`          |
+| Right button held         | \`0x02\`          |
+| Left + Right held         | \`0x03\`          |
+| Middle button held        | \`0x04\`          |
+| Left + Middle held        | \`0x05\`          |
+
+A button is **held** as long as its bit is \`1\`. To **release** it, send a subsequent packet with that bit cleared. \`[x].exe\` uses the most recently received state for each source — it does not auto-release buttons between packets.
+
+### \`dx\` / \`dy\` Interpretation
+
+- Both are **relative** deltas, not absolute screen coordinates.
+- A single packet can carry any delta in the int16 range (-32768 to +32767). \`[x].exe\` internally clamps each axis to [-127, 127] per 8 ms dispatch tick and carries over the remainder, so large deltas are delivered faithfully across multiple ticks without loss.
+- To move the cursor right and down, use positive \`dx\` and positive \`dy\`.
+- To move it left and up, use negative values.
+
+### Sequence Number
+
+The \`seq\` field is a rolling counter managed by your sender. Start at \`0\` and increment by \`1\` per packet, wrapping from \`255\` back to \`0\`. \`[x].exe\` parses \`seq\` out of the packet but does not use it for anything — it is not logged, not used for reordering, and not used for deduplication. It is silently discarded after parsing. You must still include it in the packet because it is part of the wire format, but its value has no effect on behaviour.
+
+## Sending Rate
+
+\`[x].exe\` dispatches HID reports at **125 Hz** by default (one report every 8 ms). You can send packets faster than this — accumulated deltas are summed inside \`[x].exe\` and flushed at the dispatch rate — but there is no benefit to sending faster than 125 Hz under default configuration.
+
+**Recommended sender rate:** 100–125 packets/second for smooth cursor movement.
+
+If you are generating high-velocity movements (e.g. a flick gesture), you can batch the delta into a single large packet rather than splitting it across many. \`[x].exe\` handles the clamping and remainder carry-over internally.
+
+## Code Examples
+
+### Python
+
+\`\`\`python
+import socket
+import struct
+import time
+
+TARGET_IP   = "192.168.1.100"   # IP of the machine running [x].exe
+TARGET_PORT = 5555
+MAGIC       = 0xAB
+PACKET_FMT  = "<BhhBB"          # magic(u8), dx(i16), dy(i16), buttons(u8), seq(u8)
+
+def build_packet(dx: int, dy: int, buttons: int, seq: int) -> bytes:
+    return struct.pack(PACKET_FMT, MAGIC, dx, dy, buttons & 0x07, seq & 0xFF)
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1024)
+
+seq = 0
+
+def send_move(dx: int, dy: int, buttons: int = 0):
+    global seq
+    packet = build_packet(dx, dy, buttons, seq)
+    sock.sendto(packet, (TARGET_IP, TARGET_PORT))
+    seq = (seq + 1) & 0xFF
+
+# --- Example usage ---
+
+# Move right 50px
+send_move(50, 0)
+
+# Move down 30px with left button held
+send_move(0, 30, buttons=0x01)
+
+# Release all buttons (no movement)
+send_move(0, 0, buttons=0x00)
+
+# Smooth movement: 100px right over 10 steps
+for _ in range(10):
+    send_move(10, 0)
+    time.sleep(0.008)  # 125 Hz
+
+sock.close()
+\`\`\`
+
+### C++17
+
+\`\`\`cpp
+#include <cstdint>
+#include <cstring>
+
+#ifdef _WIN32
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  #pragma comment(lib, "ws2_32.lib")
+  using socket_t = SOCKET;
+  #define SOCK_INVALID INVALID_SOCKET
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <unistd.h>
+  using socket_t = int;
+  #define SOCK_INVALID -1
+  #define closesocket close
+#endif
+
+constexpr uint8_t  PACKET_MAGIC = 0xAB;
+constexpr int      PACKET_SIZE  = 7;
+constexpr uint16_t TARGET_PORT  = 5555;
+
+#pragma pack(push, 1)
+struct MousePacket {
+    uint8_t  magic;
+    int16_t  dx;
+    int16_t  dy;
+    uint8_t  buttons;
+    uint8_t  seq;
+};
+#pragma pack(pop)
+
+static_assert(sizeof(MousePacket) == PACKET_SIZE, "Packet must be 7 bytes");
+
+class HidBridgeSender {
+public:
+    HidBridgeSender(const char* target_ip, uint16_t port = 5555)
+        : seq_(0), sock_(SOCK_INVALID)
+    {
+#ifdef _WIN32
+        WSADATA wsa;
+        WSAStartup(MAKEWORD(2, 2), &wsa);
+#endif
+        sock_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        std::memset(&addr_, 0, sizeof(addr_));
+        addr_.sin_family = AF_INET;
+        addr_.sin_port   = htons(port);
+        inet_pton(AF_INET, target_ip, &addr_.sin_addr);
+    }
+
+    ~HidBridgeSender() {
+        if (sock_ != SOCK_INVALID) closesocket(sock_);
+#ifdef _WIN32
+        WSACleanup();
+#endif
+    }
+
+    bool send(int16_t dx, int16_t dy, uint8_t buttons = 0) {
+        MousePacket pkt{};
+        pkt.magic   = PACKET_MAGIC;
+        pkt.dx      = dx;
+        pkt.dy      = dy;
+        pkt.buttons = buttons & 0x07;
+        pkt.seq     = seq_++;
+
+        // The protocol requires little-endian int16 for dx/dy.
+        // All platforms this app targets (x86, x64, ARM) are little-endian,
+        // so no byte swap is needed. htole16() is a Linux/glibc function and
+        // is not available on Windows (MSVC/MinGW), so it is intentionally
+        // omitted here. If you ever target a big-endian host, add a manual
+        // swap: pkt.dx = (int16_t)((dx << 8) | ((uint16_t)dx >> 8));
+
+        int sent = sendto(sock_,
+            reinterpret_cast<const char*>(&pkt), PACKET_SIZE, 0,
+            reinterpret_cast<const sockaddr*>(&addr_), sizeof(addr_));
+
+        return sent == PACKET_SIZE;
+    }
+
+private:
+    sockaddr_in addr_{};
+    socket_t    sock_;
+    uint8_t     seq_;
+};
+
+// --- Example usage ---
+int main() {
+    HidBridgeSender sender("192.168.1.100");
+
+    // Move right 50 units
+    sender.send(50, 0);
+
+    // Left-click (press then release)
+    sender.send(0, 0, 0x01);   // left button down
+    sender.send(0, 0, 0x00);   // release
+
+    return 0;
+}
+\`\`\`
+
+### C# / .NET
+
+\`\`\`csharp
+using System;
+using System.Net;
+using System.Net.Sockets;
+
+public class HidBridgeSender : IDisposable
+{
+    private readonly UdpClient _udp;
+    private readonly IPEndPoint _endpoint;
+    private byte _seq = 0;
+
+    private const byte MAGIC = 0xAB;
+
+    public HidBridgeSender(string targetIp, int port = 5555)
+    {
+        _udp = new UdpClient();
+        _endpoint = new IPEndPoint(IPAddress.Parse(targetIp), port);
+    }
+
+    /// <summary>
+    /// Send a mouse movement or button event.
+    /// </summary>
+    /// <param name="dx">Relative X delta (positive = right).</param>
+    /// <param name="dy">Relative Y delta (positive = down).</param>
+    /// <param name="buttons">Button bitmask: bit0=Left, bit1=Right, bit2=Middle.</param>
+    public void Send(short dx, short dy, byte buttons = 0)
+    {
+        byte[] packet = BuildPacket(dx, dy, buttons, _seq);
+        _seq++;  // wraps automatically at 256
+        _udp.Send(packet, packet.Length, _endpoint);
+    }
+
+    private static byte[] BuildPacket(short dx, short dy, byte buttons, byte seq)
+    {
+        var buf = new byte[7];
+        buf[0] = MAGIC;
+
+        // int16 little-endian
+        buf[1] = (byte)(dx & 0xFF);
+        buf[2] = (byte)((dx >> 8) & 0xFF);
+        buf[3] = (byte)(dy & 0xFF);
+        buf[4] = (byte)((dy >> 8) & 0xFF);
+
+        buf[5] = (byte)(buttons & 0x07);
+        buf[6] = seq;
+        return buf;
+    }
+
+    public void Dispose() => _udp.Dispose();
 }
 
-export default function DeveloperTab() {
-  const { t } = useLanguage();
-  const [activeLang, setActiveLang] = useState<'csharp' | 'cpp' | 'python'>('csharp');
-  const [copied, setCopied] = useState(false);
+// --- Example usage ---
+class Program
+{
+    static void Main()
+    {
+        using var sender = new HidBridgeSender("192.168.1.100");
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+        // Move cursor right 50 units
+        sender.Send(50, 0);
+
+        // Right-click
+        sender.Send(0, 0, 0x02);   // right down
+        sender.Send(0, 0, 0x00);   // release
+
+        // Smooth upward movement over 200ms
+        for (int i = 0; i < 25; i++)
+        {
+            sender.Send(0, -4);
+            System.Threading.Thread.Sleep(8);  // 125 Hz
+        }
+    }
+}
+\`\`\`
+
+### Node.js
+
+\`\`\`javascript
+const dgram = require('dgram');
+
+const TARGET_IP   = '192.168.1.100';
+const TARGET_PORT = 5555;
+const MAGIC       = 0xAB;
+
+const sock = dgram.createSocket('udp4');
+let seq = 0;
+
+function buildPacket(dx, dy, buttons) {
+    const buf = Buffer.allocUnsafe(7);
+    buf[0] = MAGIC;
+    buf.writeInt16LE(dx, 1);
+    buf.writeInt16LE(dy, 3);
+    buf[5] = buttons & 0x07;
+    buf[6] = seq & 0xFF;
+    seq = (seq + 1) & 0xFF;
+    return buf;
+}
+
+function sendMove(dx, dy, buttons = 0) {
+    const packet = buildPacket(dx, dy, buttons);
+    sock.send(packet, TARGET_PORT, TARGET_IP);
+}
+
+// --- Example usage ---
+
+// Move right 50
+sendMove(50, 0);
+
+// Left-click
+sendMove(0, 0, 0x01);  // press
+sendMove(0, 0, 0x00);  // release
+
+// Close socket when done
+setTimeout(() => sock.close(), 500);
+\`\`\`
+
+## Sending Button Events Correctly
+
+Buttons are **stateful** in \`[x].exe\`. The emitter holds the last-known button state from your source and ORs it with any local physical mouse. This means:
+
+- To click: send \`buttons = 0x01\` (press), then \`buttons = 0x00\` (release).
+- To drag: send \`buttons = 0x01\` on the press packet, keep \`buttons = 0x01\` on all movement packets during the drag, then \`buttons = 0x00\` on release.
+- Never assume buttons auto-reset. If your process crashes while a button is pressed, \`[x].exe\` will hold that button state until it receives a packet clearing it, or until it disconnects from its BT host.
+
+| Event | \`dx\` | \`dy\` | \`buttons\` | Notes |
+|---|---|---|---|---|
+| Press event | \`0\` | \`0\` | \`0x01\` | |
+| Move while dragging | \`20\` | \`10\` | \`0x01\` | (keep bit set) |
+| Release event | \`0\` | \`0\` | \`0x00\` | |
+
+## Configuration Reference
+
+The target port and dispatch rate on \`[x].exe\` are set in its \`config.ini\`. If the defaults have been changed, match them in your sender.
+
+| \`config.ini\` key               | Default | Your sender must match         |
+|--------------------------------|---------|--------------------------------|
+| \`[network] udp_port\`           | \`5555\`  | Set \`TARGET_PORT\` to this      |
+| \`[performance] dispatch_rate_hz\` | \`125\` | Optional: tune your send rate  |
+
+The port can also be overridden at launch via \`--udp-port <N>\`. Check with whoever is running \`[x].exe\` if the default port has been changed.
+
+## Troubleshooting
+
+**Cursor does not move on the paired host**
+
+- Verify \`[x].exe\` is actually running and a BT host is connected to it. Check its console output.
+- Confirm \`[x].exe\` is reachable: \`ping <TARGET_IP>\`.
+- Confirm the UDP port is open: run \`nc -u -l 5555\` (Linux) or use Wireshark on the \`[x].exe\` host to verify packets arrive.
+- Double-check byte order. \`dx\` and \`dy\` must be **little-endian** int16.
+
+**Packets arrive but cursor drifts or overshoots**
+
+- You are likely sending too fast or with accumulated unreduced deltas. Stay at or below 125 packets/second.
+- Ensure you are sending **relative** deltas per event, not absolute coordinates.
+
+**Buttons stick (held after you expect them to release)**
+
+- Ensure every press is followed by an explicit release packet (\`buttons = 0x00\`).
+- Handle exceptions and process exits in your sender: always send a \`buttons = 0x00\` packet on cleanup.
+
+**Packets are silently dropped with no visible error**
+
+- If \`[x].exe\` receives a packet with an incorrect magic byte, it logs a \`Bad magic\` message at **debug level** (\`logger.debug\`) and discards the packet. This message is only visible when \`log_level = 3\`. At the default \`log_level = 2\` (info), malformed packets are dropped with no output at all.
+- To see bad magic messages, restart \`[x].exe\` with \`--log-level 3\` or set \`log_level = 3\` in its \`config.ini\`.
+- Verify the first byte of every packet you send is \`0xAB\`.
+- In C/C++, check struct alignment — \`#pragma pack(1)\` or equivalent is required to avoid padding between fields.
+
+**Large movements feel laggy**
+
+- Large deltas are carried across multiple 8 ms ticks. For fast gestures, this is expected and correct.
+- If overall latency is too high, ask the operator of \`[x].exe\` to increase \`dispatch_rate_hz\` to \`250\` or \`500\` in its \`config.ini\`. Your sender does not need to change.
+`;
+
+const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
+  const [copied, setCopied] = useState(false);
+  const match = /language-(\w+)/.exec(className || '');
+  const isLanguageCode = !inline && match;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const codeTemplates = {
-    csharp: `using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
+  if (isLanguageCode) {
+    if (match[1] === 'diagram') {
+      return (
+        <div className="p-4 sm:p-8 rounded-2xl bg-stone-50 border border-stone-200/60 relative overflow-hidden my-6 shadow-xs select-none">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-3xl mx-auto py-4">
+            
+            {/* Sender Node */}
+            <div className="w-full md:w-1/3 p-4 rounded-xl bg-white border border-stone-200/85 hover:border-stone-400 hover:shadow-sm transition-all text-center space-y-1 relative z-10">
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-stone-100 border border-stone-200 text-stone-550 font-mono text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider whitespace-nowrap">
+                Sender
+              </div>
+              <span className="font-serif font-bold text-stone-950 text-sm block mt-1">Your App</span>
+            </div>
 
-public class HidUdpStreamer : IDisposable
-{
-    private const byte PacketMagic = 0xAB;
-    private readonly UdpClient _udpClient;
-    private readonly IPEndPoint _targetEndPoint;
-    private byte _sequenceNumber = 0;
+            {/* Path 1: UDP */}
+            <div className="flex-1 w-full flex items-center justify-center relative min-h-[40px] md:min-h-0">
+              {/* Line */}
+              <div className="absolute inset-0 top-1/2 -translate-y-1/2 md:h-0.5 md:w-full w-0.5 h-full left-1/2 -translate-x-1/2 md:translate-x-0 md:left-0 bg-stone-300/50 overflow-hidden">
+                <motion.div
+                  className="hidden md:block absolute top-0 h-full w-32 bg-gradient-to-r from-transparent via-white to-transparent opacity-90"
+                  animate={{ left: ["-128px", "100%"] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                />
+                <motion.div
+                  className="md:hidden absolute left-0 w-full h-32 bg-gradient-to-b from-transparent via-white to-transparent opacity-90"
+                  animate={{ top: ["-128px", "100%"] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                />
+              </div>
+              <span className="relative z-10 md:-translate-y-4 px-2 py-0.5 rounded-full bg-[#fbfaf7] border border-stone-200 shadow-2xs font-mono text-[9px] font-bold text-[#8c7853] whitespace-nowrap">
+                7-byte UDP
+              </span>
+            </div>
 
-    // Example instantiation targeting Linux receiver at 192.168.1.100:5555
-    public HidUdpStreamer(string ipAddress = "192.168.1.100", int port = 5555)
-    {
-        _udpClient = new UdpClient();
-        _targetEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
+            {/* Receiver / Bridge Node */}
+            <div className="w-full md:w-1/3 p-4 rounded-xl bg-white border border-stone-200/85 hover:border-stone-400 hover:shadow-sm transition-all text-center space-y-1 relative z-10">
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-stone-100 border border-stone-200 text-stone-550 font-mono text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider whitespace-nowrap">
+                Bridge
+              </div>
+              <span className="font-serif font-bold text-stone-950 text-sm block mt-1">[x].exe</span>
+            </div>
+
+            {/* Path 2: BT HID */}
+            <div className="flex-1 w-full flex items-center justify-center relative min-h-[40px] md:min-h-0">
+              {/* Line */}
+              <div className="absolute inset-0 top-1/2 -translate-y-1/2 md:h-0.5 md:w-full w-0.5 h-full left-1/2 -translate-x-1/2 md:translate-x-0 md:left-0 bg-stone-300/50 overflow-hidden">
+                <motion.div
+                  className="hidden md:block absolute top-0 h-full w-32 bg-gradient-to-r from-transparent via-white to-transparent opacity-90"
+                  animate={{ left: ["-128px", "100%"] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "linear", delay: 0.2 }}
+                />
+                <motion.div
+                  className="md:hidden absolute left-0 w-full h-32 bg-gradient-to-b from-transparent via-white to-transparent opacity-90"
+                  animate={{ top: ["-128px", "100%"] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "linear", delay: 0.2 }}
+                />
+              </div>
+              <span className="relative z-10 md:-translate-y-4 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200/60 shadow-2xs font-mono text-[9px] font-bold text-blue-600 whitespace-nowrap">
+                BT HID
+              </span>
+            </div>
+
+            {/* Target Node */}
+            <div className="w-full md:w-1/3 p-4 rounded-xl bg-gradient-to-b from-stone-900 to-stone-950 border border-stone-800 text-center space-y-1 relative z-10 shadow-sm">
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-stone-800 border border-stone-700 text-stone-300 font-mono text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider whitespace-nowrap">
+                Target Host
+              </div>
+              <span className="font-serif font-bold text-white text-sm block mt-1">Paired Host</span>
+            </div>
+            
+          </div>
+        </div>
+      );
     }
 
-    /// <summary>
-    /// Sends a low-overhead, packed binary relative mouse packet asynchronously.
-    /// </summary>
-    /// <param name="dx">Relative X movement (-32768 to 32767)</param>
-    /// <param name="dy">Relative Y movement (-32768 to 32767)</param>
-    /// <param name="buttons">Button bitmask (Bit 0: Left, Bit 1: Right, Bit 2: Middle)</param>
-    public async Task SendMovementAsync(short dx, short dy, byte buttons)
-    {
-        byte[] payload = SerializePacket(dx, dy, buttons);
-        try
-        {
-            await _udpClient.SendAsync(payload, payload.Length, _targetEndPoint);
-        }
-        catch (SocketException ex)
-        {
-            // Handle transient network exceptions or full socket buffers gracefully
-            Console.WriteLine($"[UDP Streamer] Socket Exception: {ex.Message}");
-        }
-    }
+    return (
+      <div className="relative group rounded-xl overflow-hidden my-6 border border-stone-800 bg-[#1e1e1e] shadow-lg">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[#141414] border-b border-stone-800 select-none">
+          <span className="text-[11px] font-mono text-stone-400 font-bold uppercase tracking-widest">
+            {match[1]}
+          </span>
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-transparent hover:border-stone-700 bg-transparent hover:bg-[#252525] text-stone-400 hover:text-stone-200 transition-all text-[10px] font-mono tracking-widest uppercase cursor-pointer"
+            aria-label="Copy code"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+        <div className="text-[12px] sm:text-[13px] leading-relaxed">
+          <SyntaxHighlighter
+            style={vscDarkPlus}
+            language={match[1]}
+            PreTag="div"
+            customStyle={{ margin: 0, padding: '1.25rem', background: 'transparent' }}
+            {...props}
+          >
+            {String(children).replace(/\n$/, '')}
+          </SyntaxHighlighter>
+        </div>
+      </div>
+    );
+  }
 
-    private byte[] SerializePacket(short dx, short dy, byte buttons)
-    {
-        byte[] buffer = new byte[7];
-        
-        buffer[0] = PacketMagic;
-        
-        // Serialize little-endian 16-bit integers
-        buffer[1] = (byte)(dx & 0xFF);
-        buffer[2] = (byte)((dx >> 8) & 0xFF);
-        
-        buffer[3] = (byte)(dy & 0xFF);
-        buffer[4] = (byte)((dy >> 8) & 0xFF);
-        
-        buffer[5] = buttons;
-        
-        // Capture rolling sequence number and increment
-        buffer[6] = _sequenceNumber++;
-        
-        return buffer;
-    }
-
-    public void Dispose()
-    {
-        _udpClient?.Dispose();
-    }
-}`,
-    cpp: `#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <cstdint>
-#include <iostream>
-
-#pragma comment(lib, "Ws2_32.lib")
-
-constexpr uint8_t PACKET_MAGIC = 0xAB;
-
-// Force 1-byte alignment to avoid padding compiler differences
-#pragma pack(push, 1)
-struct HidPacket {
-    uint8_t  magic   = PACKET_MAGIC;
-    int16_t  dx      = 0;
-    int16_t  dy      = 0;
-    uint8_t  buttons = 0;
-    uint8_t  seq     = 0;
+  return (
+    <code className="bg-stone-100 text-stone-800 px-1.5 py-0.5 rounded-md font-mono text-[0.85em] border border-stone-200/50" {...props}>
+      {children}
+    </code>
+  );
 };
-#pragma pack(pop)
 
-static_assert(sizeof(HidPacket) == 7, "HidPacket must be exactly 7 bytes on the wire.");
+const Table = ({ children, ...props }: any) => (
+  <div className="w-full overflow-x-auto my-8 border border-stone-200/80 rounded-xl bg-white shadow-xs">
+    <table className="w-full text-left border-collapse text-sm min-w-max" {...props}>
+      {children}
+    </table>
+  </div>
+);
 
-class WinsockUdpStreamer {
-private:
-    SOCKET m_socket = INVALID_SOCKET;
-    sockaddr_in m_targetAddr{};
-    uint8_t m_seq = 0;
+const TableHead = ({ children, ...props }: any) => (
+  <thead className="bg-stone-50/80 border-b border-stone-200/80" {...props}>
+    {children}
+  </thead>
+);
 
-public:
-    // Defaults to Linux receiver at IPv4 address 192.168.1.100 and port 5555
-    WinsockUdpStreamer(const char* ipAddress = "192.168.1.100", uint16_t port = 5555) {
-        WSADATA wsaData;
-        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            throw std::runtime_error("WSAStartup failed.");
-        }
+const TableBody = ({ children, ...props }: any) => (
+  <tbody className="divide-y divide-stone-150" {...props}>
+    {children}
+  </tbody>
+);
 
-        m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        if (m_socket == INVALID_SOCKET) {
-            WSACleanup();
-            throw std::runtime_error("Failed to create socket.");
-        }
+const TableRow = ({ children, ...props }: any) => (
+  <tr className="border-b border-stone-100 last:border-0 hover:bg-stone-50/40 transition-colors" {...props}>
+    {children}
+  </tr>
+);
 
-        // Configure socket as non-blocking to prevent locking the main render or hook threads
-        u_long nonBlockingMode = 1;
-        if (ioctlsocket(m_socket, FIONBIO, &nonBlockingMode) != 0) {
-            cleanup();
-            throw std::runtime_error("Failed to set non-blocking mode.");
-        }
+const TableHeader = ({ children, ...props }: any) => (
+  <th className="px-4 py-3 font-serif font-bold text-stone-900 bg-stone-100/50" {...props}>
+    {children}
+  </th>
+);
 
-        m_targetAddr.sin_family = AF_INET;
-        m_targetAddr.sin_port = htons(port);
-        inet_pton(AF_INET, ipAddress, &m_targetAddr.sin_addr);
-    }
+const TableCell = ({ children, ...props }: any) => (
+  <td className="px-4 py-3 text-stone-600 font-light" {...props}>
+    {children}
+  </td>
+);
 
-    ~WinsockUdpStreamer() {
-        cleanup();
-    }
-
-    bool SendMovement(int16_t dx, int16_t dy, uint8_t buttons) {
-        HidPacket packet;
-        packet.dx = dx;
-        packet.dy = dy;
-        packet.buttons = buttons;
-        packet.seq = m_seq++;
-
-        int bytesSent = sendto(m_socket, 
-                               reinterpret_cast<const char*>(&packet), 
-                               sizeof(packet), 
-                               0, 
-                               reinterpret_cast<const sockaddr*>(&m_targetAddr), 
-                               sizeof(m_targetAddr));
-
-        if (bytesSent == SOCKET_ERROR) {
-            int errorCode = WSAGetLastError();
-            if (errorCode != WSAEWOULDBLOCK) {
-                std::cerr << "[Winsock Streamer] Send failed with error: " << errorCode << std::endl;
-                return false;
-            }
-        }
-        return true;
-    }
-
-private:
-    void cleanup() {
-        if (m_socket != INVALID_SOCKET) {
-            closesocket(m_socket);
-            m_socket = INVALID_SOCKET;
-        }
-        WSACleanup();
-    }
-};`,
-    python: `import socket
-import struct
-
-class PythonUdpStreamer:
-    PACKET_MAGIC = 0xAB
-    # Format: < (little-endian), B (uint8), h (int16), h (int16), B (uint8), B (uint8)
-    PACKET_FORMAT = "<BhhBB"
-
-    # Defaulting target connection to Linux receiver IP 192.168.1.100 on port 5555
-    def __init__(self, target_ip: str = "192.168.1.100", target_port: int = 5555):
-        self.target_ip = target_ip
-        self.target_port = target_port
-        
-        # Instantiate UDP socket
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        
-        # Configure non-blocking socket state
-        self.sock.setblocking(False)
-        self.seq = 0
-
-    def send_movement(self, dx: int, dy: int, buttons: int) -> bool:
-        """Serializes and streams mouse movement to the emulator.
-
-        Args:
-            dx (int): Relative X axis movement.
-            dy (int): Relative Y axis movement.
-            buttons (int): Mouse button bitmask.
-        """
-        # Pack the fields using little-endian structuring
-        payload = struct.pack(
-            self.PACKET_FORMAT,
-            self.PACKET_MAGIC,
-            dx,
-            dy,
-            buttons & 0xFF,
-            self.seq & 0xFF
-        )
-        
-        # Increment rolling sequence number
-        self.seq = (self.seq + 1) & 0xFF
-
-        try:
-            self.sock.sendto(payload, (self.target_ip, self.target_port))
-            return True
-        except BlockingIOError:
-            # Handle socket buffer congestion gracefully
-            return False
-        except socket.error as e:
-            print(f"[Python Streamer] Socket error: {e}")
-            return False
-
-    def close(self):
-        self.sock.close()`
-  };
-
+export default function DeveloperTab() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="space-y-8 max-w-5xl mx-auto px-1 sm:px-0"
+      className="space-y-8 max-w-5xl mx-auto px-4 w-full min-w-0"
     >
-      {/* Page Header */}
-      <div className="p-4 sm:p-6 md:p-10 rounded-3xl bg-white/95 border border-stone-200/60 shadow-xs marble-slab-card overflow-hidden">
-        <div className="space-y-2 border-b border-stone-200/40 pb-6 mb-8 text-center sm:text-left">
-          <span className="text-[10px] text-stone-400 font-mono uppercase tracking-widest font-bold flex items-center justify-center sm:justify-start gap-1.5">
-            <Terminal className="h-3.5 w-3.5 text-stone-704" /> {t.developer.badge}
-          </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-light text-stone-950 leading-tight">
-            {t.developer.title}
-          </h3>
-          <p className="text-xs text-stone-405 font-light">
-            {t.developer.subtitle}
-          </p>
+      <div className="p-6 md:p-10 rounded-2xl sm:rounded-3xl bg-white/95 border border-stone-200/60 shadow-xs marble-slab-card w-full max-w-full min-w-0 overflow-hidden prose prose-sm prose-stone max-w-none prose-code:before:hidden prose-code:after:hidden">
+        <div className="markdown-body text-stone-700 font-light prose-headings:font-serif prose-headings:font-normal prose-h1:text-2xl prose-h2:text-lg prose-a:text-stone-900 prose-a:underline prose-strong:font-bold prose-strong:text-stone-900 prose-hr:border-stone-200">
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code: CodeBlock,
+              table: Table,
+              thead: TableHead,
+              tbody: TableBody,
+              tr: TableRow,
+              th: TableHeader,
+              td: TableCell,
+              pre: ({ children }) => <>{children}</>
+            }}
+          >
+            {markdownContent}
+          </Markdown>
         </div>
-
-        {/* Section 1: Architectural Overview */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-2">
-            <Layers className="h-4.5 w-4.5 text-stone-700" />
-            <h4 className="font-serif text-lg font-bold text-stone-900">{t.developer.sec1Title}</h4>
-          </div>
-          
-          <div className="text-xs text-stone-605 leading-relaxed font-light space-y-4 font-sans">
-            <p>
-              {t.developer.sec1Paragraph1}
-            </p>
-            <p>
-              {t.developer.sec1Paragraph2}
-            </p>
-
-            {/* List with icons */}
-            <div className="grid gap-4 sm:grid-cols-3 mt-4">
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/50 space-y-2">
-                <span className="font-mono text-[10px] text-stone-400 font-bold uppercase block">{t.developer.step1Title}</span>
-                <span className="font-serif font-bold text-stone-950 text-xs block flex items-center gap-1.5">
-                  <Cpu className="h-3.5 w-3.5 text-stone-800" /> {t.developer.step1Host}
-                </span>
-                <p className="text-[11px] text-stone-500 font-light font-sans leading-normal">
-                  {t.developer.step1Desc}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/50 space-y-2">
-                <span className="font-mono text-[10px] text-stone-400 font-bold uppercase block">{t.developer.step2Title}</span>
-                <span className="font-serif font-bold text-stone-950 text-xs block flex items-center gap-1.5">
-                  <Radio className="h-3.5 w-3.5 text-stone-800" /> {t.developer.step2Host}
-                </span>
-                <p className="text-[11px] text-stone-500 font-light font-sans leading-normal">
-                  {t.developer.step2Desc}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/50 space-y-2">
-                <span className="font-mono text-[10px] text-stone-400 font-bold uppercase block">{t.developer.step3Title}</span>
-                <span className="font-serif font-bold text-stone-950 text-xs block flex items-center gap-1.5">
-                  <Server className="h-3.5 w-3.5 text-stone-800" /> {t.developer.step3Host}
-                </span>
-                <p className="text-[11px] text-stone-500 font-light font-sans leading-normal">
-                  {t.developer.step3Desc}
-                </p>
-              </div>
-            </div>
-
-            {/* Architectural Visual Flow Diagram */}
-            <div className="p-4 sm:p-8 rounded-2xl bg-stone-50 border border-stone-200/60 relative overflow-hidden mt-6 shadow-xs select-none">
-              <div className="absolute top-3 right-4 text-[9px] text-stone-400 font-mono tracking-widest uppercase font-bold select-none flex items-center gap-1.5">
-                <Layers className="h-3 w-3" /> {t.developer.sysFlow}
-              </div>
-              
-              <div className="flex flex-col items-center justify-center space-y-6 max-w-lg mx-auto py-4">
-                {/* Windows Host Node */}
-                <div className="w-full p-4 rounded-xl bg-white border border-stone-200/85 hover:border-stone-400 hover:shadow-sm transition-all text-center space-y-1 relative group">
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-stone-100 border border-stone-200 text-stone-550 font-mono text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider whitespace-nowrap">
-                    {t.developer.srcNode}
-                  </div>
-                  <span className="font-serif font-bold text-stone-950 text-xs block mt-1">{t.developer.step1Host}</span>
-                  <p className="text-[11.5px] text-amber-805 font-mono font-semibold">Aimbot app</p>
-                </div>
-
-                {/* Arrow & Protocol Label */}
-                <div className="flex flex-col items-center space-y-1 select-none w-full max-w-full">
-                  <div className="w-0.5 h-8 bg-stone-300 relative">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1.5 border-4 border-transparent border-t-stone-300 w-0 h-0" />
-                  </div>
-                  <span className="font-mono text-[8px] sm:text-[9px] font-bold text-[#8c7853] bg-[#fbfaf7] border border-stone-200/80 px-2 sm:px-3 py-1 rounded-full uppercase tracking-wider shadow-2xs text-center max-w-full truncate sm:whitespace-normal">
-                    {t.developer.udpStream}
-                  </span>
-                  <div className="w-0.5 h-6 bg-stone-300 relative">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1.5 border-4 border-transparent border-t-stone-300 w-0 h-0" />
-                  </div>
-                </div>
-
-                {/* Linux HID Receiver Node */}
-                <div className="w-full p-4 rounded-xl bg-white border border-stone-200/85 hover:border-stone-400 hover:shadow-sm transition-all text-center space-y-1 relative">
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-stone-100 border border-stone-200 text-stone-550 font-mono text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider whitespace-nowrap">
-                    {t.developer.bridgeNode}
-                  </div>
-                  <span className="font-serif font-bold text-stone-950 text-xs block mt-1">{t.developer.step2Host}</span>
-                  <p className="text-[11px] text-stone-500 font-mono">linux-hid-emulator</p>
-                </div>
-
-                {/* Arrow & Protocol Label */}
-                <div className="flex flex-col items-center space-y-1 select-none w-full max-w-full">
-                  <div className="w-0.5 h-8 bg-stone-300 relative">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1.5 border-4 border-transparent border-t-stone-300 w-0 h-0" />
-                  </div>
-                  <span className="font-mono text-[8px] sm:text-[9px] font-bold text-stone-600 bg-stone-50 border border-stone-200/80 px-2 sm:px-3 py-1 rounded-full uppercase tracking-wider shadow-2xs text-center max-w-full truncate sm:whitespace-normal">
-                    {t.developer.btStream}
-                  </span>
-                  <div className="w-0.5 h-6 bg-stone-300 relative">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1.5 border-4 border-transparent border-t-stone-300 w-0 h-0" />
-                  </div>
-                </div>
-
-                {/* Target Device Node */}
-                <div className="w-full p-4 rounded-xl bg-gradient-to-b from-stone-900 to-stone-950 text-[#fbfaf7] text-center space-y-1 relative shadow-sm">
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-stone-800 border border-stone-700 text-stone-300 font-mono text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider whitespace-nowrap">
-                    {t.developer.targetNode}
-                  </div>
-                  <span className="font-serif font-bold text-white text-xs block mt-1">{t.developer.step3Host}</span>
-                  <p className="text-[11px] text-stone-400 font-mono">{t.developer.targetDesc}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 2: Connectionless UDP Network Routing */}
-        <section className="space-y-6 mt-12 border-t border-stone-200/40 pt-10">
-          <div className="flex items-center gap-2">
-            <Radio className="h-4.5 w-4.5 text-stone-700" />
-            <h4 className="font-serif text-lg font-bold text-stone-900">{t.developer.sec2RoutingTitle}</h4>
-          </div>
-
-          <div className="text-xs text-stone-605 leading-relaxed font-light space-y-4 font-sans">
-            <p>
-              {t.developer.sec2RoutingDesc}
-            </p>
-
-            <div className="grid gap-4 md:grid-cols-3 mt-4">
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/50 space-y-1.5 hover:border-stone-400 hover:shadow-2xs transition-all duration-200">
-                <span className="font-serif font-bold text-stone-950 text-xs block">
-                  {t.developer.routingStep1Title}
-                </span>
-                <p className="text-[11px] text-stone-500 font-light leading-normal">
-                  {t.developer.routingStep1Desc}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/50 space-y-1.5 hover:border-stone-400 hover:shadow-2xs transition-all duration-200">
-                <span className="font-serif font-bold text-stone-950 text-xs block">
-                  {t.developer.routingStep2Title}
-                </span>
-                <p className="text-[11px] text-stone-500 font-light leading-normal">
-                  {t.developer.routingStep2Desc}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/50 space-y-1.5 hover:border-stone-400 hover:shadow-2xs transition-all duration-200">
-                <span className="font-serif font-bold text-stone-950 text-xs block">
-                  {t.developer.routingStep3Title}
-                </span>
-                <p className="text-[11px] text-stone-500 font-light leading-normal">
-                  {t.developer.routingStep3Desc}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 3: Custom UDP Payload Specification */}
-        <section className="space-y-6 mt-12 border-t border-stone-200/40 pt-10">
-          <div className="flex items-center gap-2">
-            <Cpu className="h-4.5 w-4.5 text-stone-700" />
-            <h4 className="font-serif text-lg font-bold text-stone-900">{t.developer.sec2Title}</h4>
-          </div>
-
-          <div className="text-xs text-stone-605 leading-relaxed font-light space-y-4 font-sans">
-            <p>
-              {t.developer.sec2Desc}
-            </p>
-
-            {/* Custom Interactive Table */}
-            <div className="overflow-x-auto border border-stone-200/60 rounded-2xl bg-stone-50/40 w-full max-w-full">
-              <table className="w-full text-left border-collapse font-sans text-xs min-w-[580px]">
-                <thead>
-                  <tr className="border-b border-stone-200/80 bg-stone-100/50">
-                    <th className="p-4 font-bold text-stone-900 font-serif w-24">{t.developer.colOffset}</th>
-                    <th className="p-4 font-bold text-stone-900 font-serif w-24">{t.developer.colSize}</th>
-                    <th className="p-4 font-bold text-stone-900 font-serif w-32">{t.developer.colField}</th>
-                    <th className="p-4 font-bold text-stone-900 font-serif w-24">{t.developer.colType}</th>
-                    <th className="p-4 font-bold text-stone-900 font-serif">{t.developer.colDesc}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-150 text-stone-600 font-light">
-                  <tr>
-                    <td className="p-4 font-mono font-bold text-stone-900">0</td>
-                    <td className="p-4">1 byte</td>
-                    <td className="p-4 font-mono text-amber-900 font-bold">magic</td>
-                    <td className="p-4 font-mono text-stone-500">uint8</td>
-                    <td className="p-4">{t.developer.rowMagic}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono font-bold text-stone-900">1</td>
-                    <td className="p-4">2 bytes</td>
-                    <td className="p-4 font-mono text-amber-900 font-bold">dx</td>
-                    <td className="p-4 font-mono text-stone-500">int16 (LE)</td>
-                    <td className="p-4">{t.developer.rowDx}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono font-bold text-stone-900">3</td>
-                    <td className="p-4">2 bytes</td>
-                    <td className="p-4 font-mono text-amber-900 font-bold">dy</td>
-                    <td className="p-4 font-mono text-stone-500">int16 (LE)</td>
-                    <td className="p-4">{t.developer.rowDy}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono font-bold text-stone-900">5</td>
-                    <td className="p-4">1 byte</td>
-                    <td className="p-4 font-mono text-amber-900 font-bold">buttons</td>
-                    <td className="p-4 font-mono text-stone-500">uint8</td>
-                    <td className="p-4">{t.developer.rowButtons}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono font-bold text-stone-900">6</td>
-                    <td className="p-4">1 byte</td>
-                    <td className="p-4 font-mono text-amber-900 font-bold">seq</td>
-                    <td className="p-4 font-mono text-stone-500">uint8</td>
-                    <td className="p-4">{t.developer.rowSeq}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Button bitmask */}
-            <div className="space-y-3 mt-4">
-              <h5 className="font-serif font-bold text-stone-950 text-xs">{t.developer.bitmaskTitle}</h5>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/40 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="font-mono text-[9px] font-bold text-stone-400 uppercase block">Bit 0 (0x01)</span>
-                    <span className="font-serif font-semibold text-stone-900 text-xs">{t.developer.leftClick}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-stone-200 font-mono text-[10px] text-stone-704 font-bold">0x01</span>
-                </div>
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/40 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="font-mono text-[9px] font-bold text-stone-400 uppercase block">Bit 1 (0x02)</span>
-                    <span className="font-serif font-semibold text-stone-900 text-xs">{t.developer.rightClick}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-stone-200 font-mono text-[10px] text-stone-704 font-bold">0x02</span>
-                </div>
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/40 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="font-mono text-[9px] font-bold text-stone-400 uppercase block">Bit 2 (0x04)</span>
-                    <span className="font-serif font-semibold text-stone-900 text-xs">{t.developer.middleClick}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-stone-200 font-mono text-[10px] text-stone-704 font-bold">0x04</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 3: Integration Templates */}
-        <section className="space-y-6 mt-12 border-t border-stone-200/40 pt-10">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Code2 className="h-4.5 w-4.5 text-stone-700" />
-              <h4 className="font-serif text-lg font-bold text-stone-900">{t.developer.sec3Title}</h4>
-            </div>
-            
-            {/* Language Switcher Tabs */}
-            <div className="flex bg-stone-100 p-1 rounded-full text-[10px] uppercase font-mono tracking-wider border border-stone-200 shadow-inner">
-              <button 
-                onClick={() => setActiveLang('csharp')}
-                className={`px-3 py-1.5 rounded-full transition-all ${activeLang === 'csharp' ? 'bg-stone-900 text-white font-bold' : 'text-stone-500 hover:text-stone-800'}`}
-              >
-                C#
-              </button>
-              <button 
-                onClick={() => setActiveLang('cpp')}
-                className={`px-3 py-1.5 rounded-full transition-all ${activeLang === 'cpp' ? 'bg-stone-900 text-white font-bold' : 'text-stone-500 hover:text-stone-800'}`}
-              >
-                C++
-              </button>
-              <button 
-                onClick={() => setActiveLang('python')}
-                className={`px-3 py-1.5 rounded-full transition-all ${activeLang === 'python' ? 'bg-stone-900 text-white font-bold' : 'text-stone-500 hover:text-stone-800'}`}
-              >
-                Python
-              </button>
-            </div>
-          </div>
-
-          <p className="text-xs text-stone-605 leading-relaxed font-light font-sans">
-            {t.developer.sec3Desc}
-          </p>
-
-          {/* Code IDE Showcase wrapper */}
-          <div className="rounded-2xl border border-stone-800 bg-[#161514] overflow-hidden flex flex-col shadow-xl max-w-full w-full">
-            {/* Code header mockup */}
-            <div className="bg-[#0f0e0d] px-4 py-3 border-b border-stone-800 flex items-center justify-between select-none">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 shrink-0" />
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 shrink-0" />
-                <span className="w-2.5 h-2.5 rounded-full bg-green-500/80 shrink-0" />
-                <span className="text-[10px] text-stone-500 font-mono ml-3 uppercase truncate">
-                  {activeLang === 'csharp' ? 'HidUdpStreamer.cs' : activeLang === 'cpp' ? 'WinsockUdpStreamer.cpp' : 'udp_streamer.py'}
-                </span>
-              </div>
-              <button
-                onClick={() => copyToClipboard(codeTemplates[activeLang])}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-stone-750 hover:border-stone-500 bg-[#1a1918] hover:bg-[#252322] text-stone-400 hover:text-stone-200 font-mono text-[9px] uppercase tracking-widest transition-all cursor-pointer shrink-0"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-3 w-3 text-emerald-400" />
-                    <span className="text-emerald-400">{t.developer.copiedBtn}</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3 w-3 text-stone-400" />
-                    <span>{t.developer.copyBtn}</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Code Pre container */}
-            <div className="p-3 sm:p-5 font-mono text-[10px] sm:text-[11px] leading-relaxed overflow-x-auto text-amber-50/90 h-[480px] scrollbar-thin select-text w-full max-w-full font-sans">
-              <pre className="font-mono h-full w-full max-w-full block overflow-x-auto whitespace-pre">
-                <code className="block w-full" dangerouslySetInnerHTML={{ __html: highlightCode(codeTemplates[activeLang], activeLang) }} />
-              </pre>
-            </div>
-          </div>
-        </section>
       </div>
     </motion.div>
   );
