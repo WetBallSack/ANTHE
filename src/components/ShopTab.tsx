@@ -27,7 +27,6 @@ export default function ShopTab() {
     return localStorage.getItem('anthe_license_purchased') === 'true';
   });
 
-  const [checkoutStep, setCheckoutStep] = useState<'idle' | 'form' | 'processing' | 'success'>('idle');
   const [showTOSModal, setShowTOSModal] = useState<boolean>(false);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
   const tosScrollRef = React.useRef<HTMLDivElement>(null);
@@ -55,13 +54,6 @@ export default function ShopTab() {
     }
   };
 
-  const [email, setEmail] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
   // Save state on change
   useEffect(() => {
     if (isPurchased) {
@@ -73,12 +65,6 @@ export default function ShopTab() {
 
   const handleResetLicense = () => {
     setIsPurchased(false);
-    setCheckoutStep('idle');
-    setEmail('');
-    setCardName('');
-    setCardNumber('');
-    setCardExpiry('');
-    setCardCvc('');
   };
 
   const shopUIText = {
@@ -238,21 +224,16 @@ export default function ShopTab() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-12 gap-8 items-start">
+      <div className="flex justify-center items-start">
         {/* Product Showcase Card */}
         <motion.div 
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 85, damping: 14 }}
           whileHover={{ scale: 1.015, translateY: -3 }}
-          className="md:col-span-5 h-full"
+          className="w-full max-w-md h-full"
         >
           <div className="marble-slab-card p-8 rounded-3xl flex flex-col justify-between h-full space-y-8 min-h-[460px] relative overflow-hidden bg-white/95 border border-stone-200/60 shadow-xs">
-            {/* Elegant corner pill */}
-            <div className="absolute top-4 right-4 bg-stone-900 text-stone-100 text-[9px] font-mono tracking-widest px-3 py-1 rounded-full uppercase">
-              {ui.perpetual}
-            </div>
-
             <div className="space-y-6">
               <div className="h-10 w-10 bg-stone-50 border border-stone-200 rounded-2xl flex items-center justify-center">
                 <AntheLogo size={22} color="#1c1917" />
@@ -301,7 +282,6 @@ export default function ShopTab() {
                   </button>
                 </div>
               ) : (
-                checkoutStep === 'idle' && (
                   <button
                     onClick={() => {
                       setHasScrolledToBottom(false);
@@ -312,193 +292,12 @@ export default function ShopTab() {
                     <span>{ui.acquireBtn}</span>
                     <ArrowRight className="h-3.5 w-3.5 text-stone-400" />
                   </button>
-                )
               )}
             </div>
           </div>
         </motion.div>
 
-        {/* Transaction Terminal Grid Section */}
-        <div className="md:col-span-7">
-          <AnimatePresence mode="wait">
-            {/* Step 1: Info & Pitch (Idle) */}
-            {checkoutStep === 'idle' && !isPurchased && (
-              <motion.div
-                key="idle-view"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="marble-slab-card p-8 rounded-3xl space-y-6 min-h-[460px] flex flex-col justify-between bg-white/95 border border-stone-200/60 shadow-xs hover:scale-[1.01] transition-transform"
-              >
-                <div className="space-y-6">
-                  <h4 className="font-serif text-lg font-bold text-stone-950 border-b border-stone-100 pb-3">{ui.guaranteeHeader}</h4>
-                  
-                  <div className="grid gap-6">
-                    <div className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-lg bg-stone-50 border border-stone-250/20 flex items-center justify-center shrink-0">
-                        <Clock className="h-4 w-4 text-stone-700" />
-                      </div>
-                      <div className="space-y-1">
-                        <h5 className="font-serif text-sm font-semibold text-stone-900">{ui.timelineTitle}</h5>
-                        <p className="text-xs text-stone-500 leading-relaxed font-light">
-                          {ui.timelineDesc}
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="flex gap-4 items-start">
-                      <div className="h-8 w-8 rounded-lg bg-stone-50 border border-stone-250/20 flex items-center justify-center shrink-0">
-                        <ShieldCheck className="h-4 w-4 text-stone-700" />
-                      </div>
-                      <div className="space-y-1">
-                        <h5 className="font-serif text-sm font-semibold text-stone-900">{ui.complTitle}</h5>
-                        <p className="text-xs text-stone-500 leading-relaxed font-light">
-                          {ui.complDesc}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-stone-400 font-mono text-[10px] flex items-center gap-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200/50">
-                  <span className="h-2 w-2 rounded-full bg-stone-500"></span>
-                  <span>{ui.selectTerm}</span>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 2: External Billing Link */}
-            {checkoutStep === 'form' && (
-              <motion.div
-                key="form-view"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="marble-slab-card p-8 rounded-3xl space-y-6 min-h-[460px] flex flex-col justify-between bg-white/95 border border-stone-200/60 shadow-xs"
-              >
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                    <h4 className="font-serif text-lg font-bold text-stone-950">{ui.secGateway}</h4>
-                    <span className="text-[10px] text-stone-400 font-mono uppercase tracking-wider">{ui.chkPortal}</span>
-                  </div>
-
-                  <p className="text-xs text-stone-600 leading-relaxed font-light">
-                    {ui.chkPortalDesc}
-                  </p>
-
-                  <div className="bg-stone-50/70 p-4.5 rounded-2xl border border-stone-150 space-y-2.5">
-                    <div className="flex justify-between text-xs text-stone-600">
-                      <span>{ui.unif}</span>
-                      <span className="font-mono font-semibold text-stone-900">$15.00 {t.shop.currency || 'USD'}</span>
-                    </div>
-                    <div className="flex justify-between text-xs font-bold text-stone-950 border-t border-stone-200/50 pt-2.5">
-                      <span>{ui.totalDue}</span>
-                      <span className="font-mono text-sm text-stone-950">$15.00</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCheckoutStep('processing');
-                      setTimeout(() => {
-                        setIsPurchased(true);
-                        setCheckoutStep('success');
-                      }, 1200);
-                    }}
-                    className="w-full py-3.5 px-6 rounded-full bg-stone-950 hover:bg-stone-800 text-[#faf9f6]/95 text-xs font-bold tracking-widest transition-all shadow-md active:scale-[0.98] text-center block cursor-pointer uppercase"
-                  >
-                    {ui.proceedBtn}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => setCheckoutStep('idle')}
-                    className="w-full py-2.5 text-stone-500 hover:text-stone-800 text-xs font-semibold tracking-wider transition-all cursor-pointer text-center"
-                  >
-                    {ui.goBack}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 3: Processing Screen */}
-            {checkoutStep === 'processing' && (
-              <motion.div
-                key="processing-view"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="marble-slab-card p-8 rounded-3xl flex flex-col items-center justify-center space-y-6 min-h-[460px] text-center"
-              >
-                <div className="relative flex items-center justify-center">
-                  <div className="h-16 w-16 rounded-full border-2 border-stone-105 border-t-stone-805 animate-spin" />
-                  <AntheLogo size={24} color="#1c1917" className="absolute" />
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-serif text-lg font-bold text-stone-950">{ui.valSigs}</h4>
-                  <p className="text-xs text-stone-400 leading-relaxed max-w-sm font-mono uppercase tracking-wider">
-                    {ui.secL2CAP}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 4: Success Message */}
-            {(checkoutStep === 'success' || isPurchased) && (
-              <motion.div
-                key="success-view"
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="marble-slab-card p-8 rounded-3xl flex flex-col justify-between min-h-[460px] animate-fade"
-              >
-                <div className="space-y-6 text-center py-6">
-                  <div className="h-14 w-14 bg-stone-50 border border-stone-200 rounded-full flex items-center justify-center mx-auto">
-                    <ShieldCheck className="h-7 w-7 text-stone-900" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-serif text-2xl font-black text-stone-950 tracking-tight">{ui.successActive}</h4>
-                    <span className="text-[9px] text-[#2e7d32] border border-[#2e7d32]/20 bg-[#f1f8e9] px-2.5 py-0.5 rounded-full font-mono uppercase font-semibold">
-                      {ui.payConfirmed}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-stone-500 leading-relaxed max-w-md mx-auto font-light">
-                    {ui.successDesc}
-                  </p>
-
-                  <div className="max-w-xs mx-auto border border-stone-200/50 rounded-2xl bg-[#fafaf9] p-4 text-left font-mono text-[10px] space-y-2.5 text-stone-605">
-                    <div className="flex justify-between border-b border-stone-200/55 pb-1.55">
-                      <span>{ui.licType}</span>
-                      <strong className="text-stone-900">{ui.pType}</strong>
-                    </div>
-                    <div className="flex justify-between border-b border-stone-200/55 pb-1.55">
-                      <span>{ui.nodeId}</span>
-                      <strong className="text-stone-900">7A-EE-5B-E9-2C</strong>
-                    </div>
-                    <div className="flex justify-between pb-0.55">
-                      <span>{ui.fwStatus}</span>
-                      <strong className="text-stone-900">{ui.signedActive}</strong>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleResetLicense}
-                    className="w-full py-3 px-6 rounded-full border border-stone-200 hover:bg-stone-50 text-stone-605 text-xs font-semibold tracking-wider transition-all cursor-pointer text-center"
-                  >
-                    {ui.simulateBtn}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       </div>
 
       {/* Comparative Section: Anthe vs KmBox vs Makcu */}

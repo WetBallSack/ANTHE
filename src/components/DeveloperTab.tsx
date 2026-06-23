@@ -592,32 +592,84 @@ const TableCell = ({ children, ...props }: any) => (
   </td>
 );
 
+const getSections = () => {
+  const matches = Array.from(markdownContent.matchAll(/^##\s+(.*)$/gm));
+  return matches.map(match => {
+    const text = match[1];
+    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return { id, title: text };
+  });
+};
+
+const H2 = ({ children, ...props }: any) => {
+  // Extract text content from children if it's an array or object
+  let text = '';
+  React.Children.forEach(children, child => {
+    if (typeof child === 'string') text += child;
+  });
+  const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
+};
+
 export default function DeveloperTab() {
+  const sections = getSections();
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="space-y-8 max-w-5xl mx-auto px-4 w-full min-w-0"
+      className="max-w-7xl mx-auto px-4 w-full min-w-0"
     >
-      <div className="p-6 md:p-10 rounded-2xl sm:rounded-3xl bg-white/95 border border-stone-200/60 shadow-xs marble-slab-card w-full max-w-full min-w-0 overflow-hidden prose prose-sm prose-stone max-w-none prose-code:before:hidden prose-code:after:hidden">
-        <div className="markdown-body text-stone-700 font-light prose-headings:font-serif prose-headings:font-normal prose-h1:text-2xl prose-h2:text-lg prose-a:text-stone-900 prose-a:underline prose-strong:font-bold prose-strong:text-stone-900 prose-hr:border-stone-200">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              code: CodeBlock,
-              table: Table,
-              thead: TableHead,
-              tbody: TableBody,
-              tr: TableRow,
-              th: TableHeader,
-              td: TableCell,
-              pre: ({ children }) => <>{children}</>
-            }}
-          >
-            {markdownContent}
-          </Markdown>
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sidebar Table of Contents */}
+        <div className="lg:w-64 shrink-0 order-2 lg:order-1">
+          <div className="sticky top-24 p-6 rounded-2xl bg-white/95 border border-stone-200/60 shadow-xs marble-slab-card">
+            <h3 className="font-serif font-bold text-stone-900 mb-4 tracking-tight">Sections</h3>
+            <nav className="space-y-1">
+              {sections.map(section => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className="block w-full text-left px-3 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-colors font-light"
+                >
+                  {section.title}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Main Markdown Content */}
+        <div className="flex-1 min-w-0 order-1 lg:order-2">
+          <div className="p-6 md:p-10 rounded-2xl sm:rounded-3xl bg-white/95 border border-stone-200/60 shadow-xs marble-slab-card w-full max-w-full min-w-0 overflow-hidden prose prose-sm prose-stone max-w-none prose-code:before:hidden prose-code:after:hidden">
+            <div className="markdown-body text-stone-700 font-light prose-headings:font-serif prose-headings:font-normal prose-h1:text-2xl prose-h2:text-lg prose-a:text-stone-900 prose-a:underline prose-strong:font-bold prose-strong:text-stone-900 prose-hr:border-stone-200">
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code: CodeBlock,
+                  table: Table,
+                  thead: TableHead,
+                  tbody: TableBody,
+                  tr: TableRow,
+                  th: TableHeader,
+                  td: TableCell,
+                  h2: H2,
+                  pre: ({ children }) => <>{children}</>
+                }}
+              >
+                {markdownContent}
+              </Markdown>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>

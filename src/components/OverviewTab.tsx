@@ -335,9 +335,9 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
           </button>
           <button
             onClick={() => onTabChange('shop')}
-            className="px-7 py-4 rounded-full text-xs font-semibold tracking-widest text-[#faf9f6]/90 hover:bg-stone-900 bg-stone-905 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center gap-2 cursor-pointer shadow-xs border border-stone-800"
+            className="px-7 py-4 rounded-full text-xs font-bold tracking-widest text-stone-950 bg-white border-2 border-stone-200 hover:border-stone-900 hover:bg-stone-50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center gap-2 cursor-pointer shadow-sm"
           >
-            <ShoppingBag className="h-4 w-4 text-stone-305" />
+            <ShoppingBag className="h-4 w-4 text-stone-900" />
             <span>{t.overview.ctaShop}</span>
           </button>
         </motion.div>
