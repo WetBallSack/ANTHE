@@ -13,6 +13,10 @@
   background: linear-gradient(135deg, #e5cda1 0%, #d4b574 50%, #bfa05c 100%);
 }
 
+html {
+  font-size: 17px;
+}
+
 body {
   background-color: #f8f7f5; /* Tactical soft warm-stone background to make pristine glows highly visible */
 }
