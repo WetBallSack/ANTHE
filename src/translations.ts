@@ -21,7 +21,7 @@ export const translations = {
       ctaStart: "START SETUP GUIDE",
       ctaShop: "VIEW PRICING PLANS",
       stats: {
-        latency: "<1ms Latecy",
+        latency: "<1ms Latency",
         latencyDesc: "Over standard local network sockets",
         conn: "Wi-Fi & Ethernet",
         connDesc: "Fully air-gapped mouse forwarding",

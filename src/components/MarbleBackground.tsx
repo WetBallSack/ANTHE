@@ -187,6 +187,27 @@ export default function MarbleBackground() {
 
     initializeMarble(width, height);
 
+    // Create pre-rendered noise pattern for luxurious stucco/plaster stone grain texture
+    const noiseCanvas = document.createElement('canvas');
+    noiseCanvas.width = 128;
+    noiseCanvas.height = 128;
+    const nCtx = noiseCanvas.getContext('2d');
+    let noisePattern: CanvasPattern | null = null;
+    if (nCtx) {
+      const imgData = nCtx.createImageData(128, 128);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        // Subtle plaster stone noise density
+        const val = Math.floor(Math.random() * 12);
+        data[i] = val;     // R
+        data[i+1] = val;   // G
+        data[i+2] = val;   // B
+        data[i+3] = 16;    // Low opacity alpha (approx 0.06)
+      }
+      nCtx.putImageData(imgData, 0, 0);
+      noisePattern = ctx.createPattern(noiseCanvas, 'repeat');
+    }
+
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -201,14 +222,36 @@ export default function MarbleBackground() {
       time += 0.002; // Very slow, luxurious time scale for fluid metamorphic shift
       ctx.clearRect(0, 0, width, height);
 
-      // Create rich underlying ivory stone marble slab base color with micro gradient
+      // Create rich underlying ivory/limestone base color with micro gradient matching Ritz-Carlton "One Bay Park" billboard
       const backGrad = ctx.createLinearGradient(0, 0, width, height);
-      backGrad.addColorStop(0, '#ffffff');
-      backGrad.addColorStop(0.35, '#fafaf9');
-      backGrad.addColorStop(0.7, '#f8f7f5');
-      backGrad.addColorStop(1, '#f4f3ed');
+      backGrad.addColorStop(0, '#f5f1e8');
+      backGrad.addColorStop(0.35, '#eae4d9');
+      backGrad.addColorStop(0.7, '#e0d8cb');
+      backGrad.addColorStop(1, '#d5cebe');
       ctx.fillStyle = backGrad;
       ctx.fillRect(0, 0, width, height);
+
+      // Render 0. Giant luxury background watermark typography (sublime embedded stone look)
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(28, 25, 23, 0.015)'; // extremely low opacity bronze/charcoal
+      
+      // Top watermark: "A N T H E"
+      ctx.font = 'normal 100 12vw "Cinzel", "Playfair Display", "Didot", "Garamond", "Georgia", serif';
+      ctx.fillText('A N T H E', width * 0.5, height * 0.3);
+      
+      // Bottom watermark: "B R I D G E"
+      ctx.fillText('B R I D G E', width * 0.5, height * 0.7);
+      ctx.restore();
+
+      // Apply the pre-rendered fine plaster texture pattern on top of the gradient and watermark
+      if (noisePattern) {
+        ctx.save();
+        ctx.fillStyle = noisePattern;
+        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
+      }
 
       // Render 1. Flowing Mineral Clouds for realistic granular depth
       clouds.forEach((cloud) => {
@@ -336,7 +379,6 @@ export default function MarbleBackground() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none -z-10 block"
-      style={{ mixBlendMode: 'multiply' }}
     />
   );
 }

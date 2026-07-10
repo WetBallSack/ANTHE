@@ -49,7 +49,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       deepDive: "Deep-Dive: ",
       fwdDeep: "NATIVE INTEGRATION",
       emuDeep: "LINUX EMULATOR & INJECTION CORE",
-      fwdDeepText: "Scripts and advanced AI agents securely stream relative offsets instantly over a raw UDP networking layer straight to the Linux engine. Because no local client forwarder is required, there is virtually zero target-system footprint. Just transmit lightweight UDP packets to the bridged IP.",
+      fwdDeepText: "Scripts securely stream relative offsets instantly over a raw UDP networking layer straight to the Linux engine. Because no local client forwarder is required, there is virtually zero target-system footprint. Just transmit lightweight UDP packets to the bridged IP.",
       emuDeepText: "Using a dedicated USB Bluetooth transceiver or micro-controller bridge, the physical receiver merges network packet schedules natively. This functions as a real-time copilot input fusion - ensuring zero cursor jitter while merging machine calculations with human touch.",
       
       hwTitle: "Recommended Twin Computer Setup",
@@ -114,7 +114,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       deepDive: "深度技术视界：",
       fwdDeep: "原生无缝集成",
       emuDeep: "LINUX 物理桥接与蓝牙注入核心",
-      fwdDeepText: "高级 AI 代理脚本现在可以直接通过轻量原生 UDP 网络协议接口，将鼠标偏移数据快速直推到 Linux 中转引擎内。由于您的本地主机无需运行任何自用的前置转发器，彻底斩断了客户端程序产生的耗时以及潜在的目标设备监控占用。",
+      fwdDeepText: "脚本现在可以直接通过轻量原生 UDP 网络协议接口，将鼠标偏移数据快速直推到 Linux 中转引擎内。由于您的本地主机无需运行任何自用的前置转发器，彻底斩断了客户端程序产生的耗时以及潜在的目标设备监控占用。",
       emuDeepText: "配合我们为您编写的开源 microcode 启动命令，您的副机会直接接掌蓝牙控制器。它充当人类玩家在无线端的真实分身——能百分之百过滤反作弊厂商对高维坐标畸变的断点检测，实现微秒级双重路径输入叠加。",
       
       hwTitle: "推荐的硬件双系统搭配",
@@ -179,7 +179,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       deepDive: "深層テクニカル詳細：",
       fwdDeep: "ネイティブ・インテグレーション",
       emuDeep: "LINUX 物理エミュレータとシグナル統合",
-      fwdDeepText: "各種AIエージェントやスクリプトは、生のUDPネットワーキング層を介して、Linuxエンジンへ相対オフセット座標を直接無圧縮で送れるようになりました。ローカル環境から送信専用のフロントエンドソフトを排除したことで、OSに対するターゲット監視の痕跡そのものが実質ゼロになっています。",
+      fwdDeepText: "スクリプトは、生のUDPネットワーキング層を介して、Linuxエンジンへ相対オフセット座標を直接無圧縮で送れるようになりました。ローカル環境から送信専用のフロントエンドソフトを排除したことで、OSに対するターゲット監視の痕跡そのものが実質ゼロになっています。",
       emuDeepText: "中継側PCのOSからは、ローカルの物理Bluetoothアダプタまたは対応コントローラチップにダイレクト接続。これらは入力信号の極小サンプリングスケジュールと完全に同期し、人と機械の動作を同じカーソル上に誤差皆無で調和させます。",
       
       hwTitle: "推奨されるダブルPCハード構成",
