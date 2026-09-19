@@ -96,7 +96,7 @@ export default function DocumentationTab() {
               desc: "在 Windows 系统级设置中执行擦除操作：",
               bullets: [
                 "打开 Windows 按钮面板，选择 \"设置 > 蓝牙和其他设备\"。",
-                "在配对项内寻觅 \"ANTHE\"、\"HID MOUSE BRIDGE\" 或任何带有 Linux 图标的桥接键鼠外设，点击右侧的 \"三个点\"，将其完全删除。",
+                "在配对项内寻觅 \"天御\"、\"ANTHE\"、\"HID MOUSE BRIDGE\" 或任何带有 Linux 图标的桥接键鼠外设，点击右侧的 \"三个点\"，将其完全删除。",
                 "关键点：关闭 Windows 蓝牙总闸，空置大概 5 秒，此后再度开启蓝牙总闸 (这会迫使 Windows 物理内存深度重建其蓝牙连接数据库)。"
               ],
               commands: {}
@@ -136,7 +136,7 @@ export default function DocumentationTab() {
                 "在 Linux 终端中再度唤起命令行控制模块：",
                 "依次输入以下这三行指令令以便对外广播 Linux 它的开放可搜寻性：",
                 "前往您的 Windows 游戏电脑，进入 \"添加设备 > 蓝牙\" 搜索接口。",
-                "点选点击检测到的可用外设 \"ANTHE\" (遇到严重缓存可能临时显示 \"HID MOUSE BRIDGE\"，皆属于正常现象请放心选取)。",
+                "点选点击检测到的可用外设 \"天御\" 或 \"ANTHE\" (遇到严重缓存可能临时显示 \"HID MOUSE BRIDGE\"，皆属于正常现象请放心选取)。",
                 "此刻紧盯 Linux 指令行面板——您会接收到一个配对授权 (Passkey / Confirm) 问题流。请立即输入 \"yes\" 并敲击回车。",
                 "最后输入并信任 Windows 主机，使后续物理信号可以永远自动化通过：",
                 "操作结束后，输入 exit 回车即代表流程终结。"

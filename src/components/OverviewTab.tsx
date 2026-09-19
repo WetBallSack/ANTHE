@@ -82,7 +82,7 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
     },
     zh: {
       schema: "架构原理解析",
-      tit: "Anthe 数据链路如何运作",
+      tit: "天御 数据链路如何运作",
       sub: "点击下方的子系统模块，即可探索坐标数据是如何从您的主游戏机，经过隔离过滤，最终安全地注入至目标主机的蓝牙底层。",
       path: "完整物理路径",
       fwd: "数据源程序",
@@ -125,9 +125,9 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       topoTitle: "物尽其用的连接收益",
 
       compLabel: "安全性分析对照",
-      compTitle: "纯软件エミュレーション与物理网桥的区别",
+      compTitle: "纯软件模拟与物理网桥的区别",
       compApproach: "对比机制",
-      compAnthe: "Anthe 物理双机桥",
+      compAnthe: "天御 物理双机桥",
       compSoft: "普通本地软件模拟",
 
       speedLabel: "核心速度面板",
@@ -266,15 +266,19 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-24"
     >
-      {/* Large ANTHE Title Header */}
+      {/* Large Title Header */}
       <section className="flex flex-col items-center justify-center text-center py-12 md:py-20 space-y-4 border-b border-stone-200/40 relative">
         <motion.h1 
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="font-serif text-7xl sm:text-8xl md:text-9xl tracking-[0.25em] font-extrabold text-stone-950 mr-[-0.25em] select-none uppercase"
+          className={
+            language === 'zh'
+              ? "font-serif-sc text-7xl sm:text-8xl md:text-9xl tracking-[0.35em] font-black text-stone-950 mr-[-0.35em] select-none"
+              : "font-serif text-7xl sm:text-8xl md:text-9xl tracking-[0.25em] font-extrabold text-stone-950 mr-[-0.25em] select-none uppercase"
+          }
         >
-          ANTHE
+          {t.brandName || (language === 'zh' ? '天御' : 'ANTHE')}
         </motion.h1>
         <motion.p 
           initial={{ opacity: 0 }}

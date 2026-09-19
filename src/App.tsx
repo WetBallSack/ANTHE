@@ -18,7 +18,7 @@ export default function App() {
   return (
     <div className="min-h-screen text-stone-800 font-sans relative overflow-hidden flex flex-col justify-between selection:bg-amber-100">
       {/* Dynamic drifting black marble veins backdrop */}
-      <MarbleBackground />
+      <MarbleBackground language={language} />
 
       {/* Decorative Golden Line Accent top boundary */}
       <div className="h-[2px] w-full bg-gradient-to-r from-stone-250/30 via-stone-405/40 to-stone-250/30 z-50 relative" />
@@ -28,9 +28,11 @@ export default function App() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           
           {/* Logo / Title brand mark */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3.5 sm:gap-4">
             <AntheLogo size={32} color="#1c1917" />
-            <span className="font-serif font-extrabold tracking-widest text-stone-900 hidden sm:inline text-lg">ANTHE</span>
+            <span className="font-serif font-extrabold tracking-widest text-stone-900 hidden sm:inline text-lg select-none">
+              ANTHE
+            </span>
           </div>
 
           {/* Navigation Items (Designed like premium hotel tabs) */}
@@ -159,7 +161,15 @@ export default function App() {
           <div className="flex flex-col sm:flex-row items-center gap-3">
             <div className="flex items-center gap-3">
               <AntheLogo size={20} color="#57534e" />
-              <span className="font-serif font-bold tracking-wider text-stone-800 text-sm">ANTHE</span>
+              <span 
+                className={`text-stone-800 select-none ${
+                  language === 'zh' 
+                    ? 'font-serif-sc font-extrabold text-base tracking-[0.18em] mr-[-0.18em]' 
+                    : 'font-serif font-bold tracking-wider text-sm'
+                }`}
+              >
+                {t.brandName || (language === 'zh' ? '天御' : 'ANTHE')}
+              </span>
             </div>
             <span className="text-stone-300 hidden sm:inline">|</span>
             <span>All rights reserved &copy; 2026</span>

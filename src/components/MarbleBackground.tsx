@@ -30,8 +30,17 @@ interface MineralCloud {
   speed: number;
 }
 
-export default function MarbleBackground() {
+interface MarbleBackgroundProps {
+  language?: string;
+}
+
+export default function MarbleBackground({ language = 'en' }: MarbleBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const languageRef = useRef(language);
+
+  useEffect(() => {
+    languageRef.current = language;
+  }, [language]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -235,14 +244,24 @@ export default function MarbleBackground() {
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(28, 25, 23, 0.015)'; // extremely low opacity bronze/charcoal
+      ctx.fillStyle = 'rgba(28, 25, 23, 0.016)'; // extremely low opacity bronze/charcoal
       
-      // Top watermark: "A N T H E"
-      ctx.font = 'normal 100 12vw "Cinzel", "Playfair Display", "Didot", "Garamond", "Georgia", serif';
-      ctx.fillText('A N T H E', width * 0.5, height * 0.3);
-      
-      // Bottom watermark: "B R I D G E"
-      ctx.fillText('B R I D G E', width * 0.5, height * 0.7);
+      const currentLang = languageRef.current;
+      if (currentLang === 'zh') {
+        // Top watermark: "天  御" with imperial Chinese serif typography
+        ctx.font = 'normal 900 13vw "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif';
+        ctx.fillText('天   御', width * 0.5, height * 0.3);
+        // Bottom watermark: "物 理 网 桥"
+        ctx.font = 'normal 600 6.5vw "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif';
+        ctx.fillText('物  理  网  桥', width * 0.5, height * 0.7);
+      } else {
+        // Top watermark: "A N T H E"
+        ctx.font = 'normal 100 12vw "Cinzel", "Playfair Display", "Didot", "Garamond", "Georgia", serif';
+        ctx.fillText('A N T H E', width * 0.5, height * 0.3);
+        
+        // Bottom watermark: "B R I D G E"
+        ctx.fillText('B R I D G E', width * 0.5, height * 0.7);
+      }
       ctx.restore();
 
       // Apply the pre-rendered fine plaster texture pattern on top of the gradient and watermark

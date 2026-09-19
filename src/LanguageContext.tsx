@@ -36,6 +36,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const t = translations[language];
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+    if (language === 'zh') {
+      document.title = '天御 | 硬件级蓝牙物理网桥系统';
+    } else if (language === 'ja') {
+      document.title = 'ANTHE | 物理Bluetooth HIDネットワークブリッジ';
+    } else {
+      document.title = 'ANTHE | Hardware-in-the-Loop Assistive Solution';
+    }
+  }, [language]);
+
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
