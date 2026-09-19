@@ -18,39 +18,39 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
     en: {
       schema: "ARCHITECTURE SCHEMA",
       tit: "How the Anthe Bridge Operates",
-      sub: "Interactively select a subsystem below to explore how coordinates move securely from your primary host, through physical filtering, to target Bluetooth injection.",
+      sub: "Select a stage below to see how coordinates move from your source application, through the isolated bridge, to Bluetooth injection.",
       path: "Full Signal Path",
       fwd: "Source App",
       emu: "Linux Emulator",
       s1: "Stage 1",
       s1Tit: "Your Source (E.g. Aimbot)",
-      s1Desc: "Custom tracking software or image-analyzing agents generate offset vectors that bypass local input queues altogether.",
+      s1Desc: "Your tracking script or vision model calculates coordinate offsets, bypassing local input queues entirely.",
       s1Items: [
-        { label: "Absolute Autonomy: ", text: "Aims are directly streamed via UDP packets from your AI script to the Linux core." },
-        { label: "Host Exoneration: ", text: "No custom forwarding executables run on your local environment." },
-        { label: "Safe Packetization: ", text: "Network-friendly UDP chunks transfer asynchronously over LAN." }
+        { label: "Direct Streaming: ", text: "Coordinates stream directly via UDP from your script to the bridge." },
+        { label: "Clean Host: ", text: "No background software or forwarder utilities run on your primary PC." },
+        { label: "Lightweight UDP: ", text: "Compact network packets transmit asynchronously over your local network." }
       ],
-      s1Foot: "No local hooks or forwarders needed",
+      s1Foot: "No local hooks or forwarders required",
       
       netLink: "LOCAL NETWORK LINK",
-      netLinkDesc: "Sub-millisecond UDP packaging over Wi-Fi or direct Ethernet.",
+      netLinkDesc: "Sub-millisecond UDP streaming over Wi-Fi or Ethernet.",
       noInternet: "No Internet Required",
 
       s2: "Stage 2",
       s2Tit: "The Linux Emulator",
-      s2Desc: "An independent receiver node translating networking instructions into true raw physical hardware reports.",
+      s2Desc: "An independent node that receives UDP packets and outputs genuine physical Bluetooth HID reports.",
       s2Items: [
-        { label: "Co-Pilot Merging: ", text: "Seamlessly blends incoming coordinates with your local physical companion mouse." },
-        { label: "Hardware Emulation: ", text: "Models real-world Bluetooth mouse packets (HID)." },
-        { label: "Zero signature logic: ", text: "Leaves no trace on target host computers or game diagnostics." }
+        { label: "Input Blending: ", text: "Seamlessly merges incoming coordinates with your physical mouse input." },
+        { label: "Standard HID: ", text: "Outputs compliant Bluetooth mouse packets identical to a retail peripheral." },
+        { label: "Zero Footprint: ", text: "Leaves no process traces or driver signatures on the target machine." }
       ],
       s2Foot: "Generates real Bluetooth HID reports",
 
       deepDive: "Deep-Dive: ",
       fwdDeep: "NATIVE INTEGRATION",
       emuDeep: "LINUX EMULATOR & INJECTION CORE",
-      fwdDeepText: "Scripts securely stream relative offsets instantly over a raw UDP networking layer straight to the Linux engine. Because no local client forwarder is required, there is virtually zero target-system footprint. Just transmit lightweight UDP packets to the bridged IP.",
-      emuDeepText: "Using a dedicated USB Bluetooth transceiver or micro-controller bridge, the physical receiver merges network packet schedules natively. This functions as a real-time copilot input fusion - ensuring zero cursor jitter while merging machine calculations with human touch.",
+      fwdDeepText: "Scripts securely stream relative offsets over UDP directly to the bridge. With no forwarder required on the primary host, there is zero target footprint—just send lightweight packets to the bridge IP.",
+      emuDeepText: "The bridge receives UDP packets and transmits them through a dedicated Bluetooth transceiver, smoothly blending algorithmic corrections with your physical mouse without cursor jitter.",
       
       hwTitle: "Recommended Twin Computer Setup",
       hwSetup: "HARDWARE SETUP",
@@ -70,52 +70,52 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       
       speed1Label: "FORWARDING LAG",
       speed1Title: "Sub-Millisecond Speed",
-      speed1Desc: "Mouse controls are read and bridged immediately at high frequencies (125Hz-1000Hz). Signals arrive at the second computer in less than one millisecond, feeling completely lag-free.",
+      speed1Desc: "Coordinates are transmitted at high polling rates (125Hz–1000Hz) with sub-millisecond network transit, providing an instantaneous, lag-free feel.",
       
       speed2Label: "TRANSMISSION",
       speed2Title: "Pure Bluetooth Wireless",
-      speed2Desc: "Establish direct connectivity using built-in system pairing. No virtual programs are added to the operating system's database or driver configurations.",
+      speed2Desc: "Connects via native OS Bluetooth pairing. No virtual drivers, custom software, or system modifications are ever installed.",
       
       speed3Label: "STABLE HOOK",
       speed3Title: "Direct Network Cable Or WiFi",
-      speed3Desc: "Works seamlessly over your home Wi-Fi or with an Ethernet cable. The isolated signal completely protects your coordinates from custom local interference."
+      speed3Desc: "Runs over your local Wi-Fi or a direct Ethernet cable. The isolated network channel keeps coordinate traffic fully contained."
     },
     zh: {
       schema: "架构原理解析",
       tit: "天御 数据链路如何运作",
-      sub: "点击下方的子系统模块，即可探索坐标数据是如何从您的主游戏机，经过隔离过滤，最终安全地注入至目标主机的蓝牙底层。",
+      sub: "点击下方模块，查看坐标数据如何从源端脚本经由隔离网桥，安全注入至目标主机的蓝牙底层。",
       path: "完整物理路径",
       fwd: "数据源程序",
       emu: "Linux 实体网桥",
       s1: "第 1 阶段",
-      s1Tit: "您的数据源头应用程序 (例如 Aimbot)",
-      s1Desc: "您的定制追踪软件或者图像分析程序可直接生成并输出偏移向量数据。",
+      s1Tit: "数据源端 (如脚本/视觉模型)",
+      s1Desc: "自研追踪脚本或视觉模型直接输出位移量，完全绕过主机本地的输入队列。",
       s1Items: [
-        { label: "高度自治连接：", text: "目标坐标数据无需经过任何本地外挂辅助程序过滤，由您的脚本直发至远程 Linux 核心局域网端口。" },
-        { label: "游戏主机免责保护：", text: "由于彻底移除了对本地前置转发程序的需要，当前客户端在本地的系统环境维持零修改特征状态。" },
-        { label: "安全的小包分发：", text: "UDP 帧极小并使用异步收发策略，有效避免对网络造成压力并增强传输伪装。" }
+        { label: "直连推流：", text: "目标坐标通过轻量 UDP 数据包直接发送至网桥节点。" },
+        { label: "纯净主机：", text: "主游戏机无需运行任何本地转发或钩子程序。" },
+        { label: "极简发包：", text: "紧凑的 UDP 数据帧在局域网内异步流转，开销极低。" }
       ],
-      s1Foot: "不需要安装和运行任何的本地 Hooks 或软件转发器",
+      s1Foot: "无需安装任何本地钩子或转发软件",
 
       netLink: "本地局域网连线",
-      netLinkDesc: "通过 Wi-Fi 或网线，实现亚毫秒级低能耗 UDP 网络中继转送。",
-      noInternet: "无需连接网外外网 (Internet)",
+      netLinkDesc: "通过局域网 Wi-Fi 或直连网线，实现亚毫秒级 UDP 极速传输。",
+      noInternet: "无需连接外部互联网",
 
       s2: "第 2 阶段",
-      s2Tit: "Linux 接收仿真端 (Emulator)",
-      s2Desc: "完全独立运行于接收机内存的程序，将 UDP 包在硬件层重新解压、映射并封装为通用 HID 蓝牙动作。",
+      s2Tit: "Linux 实体网桥",
+      s2Desc: "独立运行的接收节点，将接收到的 UDP 数据包还原为真实蓝牙 HID 硬件报告。",
       s2Items: [
-        { label: "Co-Pilot 协同操作：", text: "将主电脑的捕获量与第二台物理副机连接的实体鼠标进行深度拟合合成。" },
-        { label: "标准协议支持：", text: "完全模拟真实蓝牙三键双轴硬件外设发包，无任何差异。" },
-        { label: "零特征安全机制：", text: "主游戏机上完全处于黑盒，反作弊模块完全无法检测二级网桥。" }
+        { label: "协同融合：", text: "将网络坐标与连接在副机上的实体鼠标轨迹平滑拟合。" },
+        { label: "标准 HID：", text: "输出与市售无线鼠标完全一致的标准蓝牙报告格式。" },
+        { label: "零特征残留：", text: "在目标主机上完全透明，反作弊引擎无从感知。" }
       ],
-      s2Foot: "对外发射真实的标准蓝牙 HID 协议报告",
+      s2Foot: "输出符合规范的真实蓝牙 HID 报告",
 
       deepDive: "深度技术视界：",
       fwdDeep: "原生无缝集成",
       emuDeep: "LINUX 物理桥接与蓝牙注入核心",
-      fwdDeepText: "脚本现在可以直接通过轻量原生 UDP 网络协议接口，将鼠标偏移数据快速直推到 Linux 中转引擎内。由于您的本地主机无需运行任何自用的前置转发器，彻底斩断了客户端程序产生的耗时以及潜在的目标设备监控占用。",
-      emuDeepText: "配合我们为您编写的开源 microcode 启动命令，您的副机会直接接掌蓝牙控制器。它充当人类玩家在无线端的真实分身——能百分之百过滤反作弊厂商对高维坐标畸变的断点检测，实现微秒级双重路径输入叠加。",
+      fwdDeepText: "脚本直接通过原生 UDP 接口将相对位移发送至网桥。由于主系统无需运行任何中继客户端，系统特征完全为零，仅需向网桥 IP 发送轻量数据包。",
+      emuDeepText: "副机通过专用蓝牙适配器直接对外发包，将算法输入与物理鼠标轨迹无缝叠合，兼顾微秒级响应与零抖动平滑度。",
       
       hwTitle: "推荐的硬件双系统搭配",
       hwSetup: "硬件要求",
@@ -131,56 +131,56 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
       compSoft: "普通本地软件模拟",
 
       speedLabel: "核心速度面板",
-      speedTitle: "微秒级性能指标指标",
+      speedTitle: "微秒级性能指标",
 
       speed1Label: "传输固有衰减",
       speed1Title: "微秒级无感开销",
-      speed1Desc: "捕获并在局域网内极速转发的信号周期仅为 125Hz-1000Hz 之间。从指令产生至副机蓝牙最终完成注入全链路耗时极低，绝对无可见滞后感。",
+      speed1Desc: "数据传输保持高回报率（125Hz–1000Hz），局域网亚毫秒级抵达，全程毫无迟滞感。",
 
       speed2Label: "物理输送通道",
       speed2Title: "纯蓝牙无线广播",
-      speed2Desc: "利用蓝牙标准硬件进行直连握手。不需要在您的主系统注册列表或底层硬件驱动库中增添任何危险设备签名。",
+      speed2Desc: "利用系统原生蓝牙标准握手配对，无需向主系统注册表或驱动库添加任何第三方驱动。",
 
       speed3Label: "底层传输依赖",
       speed3Title: "普通 Wi-Fi 或者是网线直连",
-      speed3Desc: "支持家庭日常无线环境或直接通过多余网口进行机对机物理双接。信号不通过外部互联网，完美断绝局域网之外的一切可能监听风险。"
+      speed3Desc: "支持家庭 Wi-Fi 或网线双机直连。数据流完全局限于本地局域网，与外部互联网彻底物理隔离。"
     },
     ja: {
       schema: "アーキテクチャ概要",
       tit: "Anthe データ伝送の仕組み",
-      sub: "下のブロックをインタラクティブにクリックすることで、入力座標がメインPCからネットワークを経由し、独立した物理Bluetooth信号として安全に発信される仕組みを学習できます。",
+      sub: "下のステージを選択して、座標データが元のアプリから隔離ブリッジを経由し、Bluetooth注入に至る流れを確認できます。",
       path: "完全シグナル経路",
       fwd: "元のアプリ",
       emu: "Linux 物理レシーバー",
       s1: "フェーズ 1",
       s1Tit: "ソース・アプリ（例：画像AI類）",
-      s1Desc: "手元の画像解析あるいはAIMトラッキングソフトウェアが座標データを生成し、不要なローカル割り込みの全てをバイパスして、直接パケット層へ出力します。",
+      s1Desc: "トラッキングスクリプトや画像認識モデルが相対移動量を計算し、ローカルの入力キューを完全にバイパスします。",
       s1Items: [
-        { label: "完全な自律性：", text: "スクリプト自身で作成したUDPコマンドをそのままリモートのLinuxコアに流し込めます。" },
-        { label: "ホストのクリーン化：", text: "自前の中継ソフトウェアが不要になったため、ゲームの動作するPCは更に綺麗な環境となりました。" },
-        { label: "パケットの軽量化：", text: "LAN経由でネットワーク負荷の少ない小型のUDPデータを直送りします。" }
+        { label: "直接ストリーミング：", text: "スクリプトからブリッジへUDPパケットで座標を直接転送します。" },
+        { label: "クリーンなホスト：", text: "ゲーム動作PC上で中継ユーティリティを動かす必要はありません。" },
+        { label: "軽量パケット：", text: "LAN経由でネットワーク負荷の極めて少ない小型UDPデータを送信します。" }
       ],
-      s1Foot: "一切のローカルフック処理と送信機ソフトを廃止しました",
+      s1Foot: "ローカルフックや転送ソフトの常駐は不要",
 
       netLink: "ホームローカルネットワーク",
-      netLinkDesc: "Wi-Fiまたは直結LANケーブルを使用して、サブミリ秒未満の極小UDPフレームによる機間通信を行います。",
+      netLinkDesc: "Wi-Fiまたは直結LANケーブルによるサブミリ秒未満のUDP高速転送。",
       noInternet: "インターネット非接続で稼働可能",
 
       s2: "フェーズ 2",
       s2Tit: "Linux 受信エミュレータ",
-      s2Desc: "完全に独立稼働する第2マシンのOS内で動き、ネットワークから受け取ったパケットを組み立て直して直接マウス信号へと変調します。",
+      s2Desc: "独立したノードがUDPパケットを受信し、本物のBluetooth HIDマウスレポートを出力します。",
       s2Items: [
-        { label: "コパイロット合成：", text: "手元の物理マウスの軌道と、ネットワーク越しに受け取ったマシンの高精度座標入力をシームレスに重ね合わせます。" },
-        { label: "高精度ハードウェアシミュ：", text: "実在する世界的な無線マウスの Bluetooth HID 書式を100%忠実に模写します。" },
-        { label: "検知フットプリント皆無：", text: "アンチチートの稼働するメインPC上からは、別PCで何が起きているか（DMAやAI）を絶対に視認できません。" }
+        { label: "コパイロット合成：", text: "ネットワーク座標と手元の物理マウス操作を滑らかに融合します。" },
+        { label: "標準HID準拠：", text: "市販のワイヤレスマウスと完全に同一のHIDフォーマットを出力します。" },
+        { label: "検知フットプリント皆無：", text: "ターゲットマシン上にプロセスやドライバの痕跡を残しません。" }
       ],
       s2Foot: "正規Bluetooth規格準拠の HID マウス制御信号を出力",
 
       deepDive: "深層テクニカル詳細：",
       fwdDeep: "ネイティブ・インテグレーション",
       emuDeep: "LINUX 物理エミュレータとシグナル統合",
-      fwdDeepText: "スクリプトは、生のUDPネットワーキング層を介して、Linuxエンジンへ相対オフセット座標を直接無圧縮で送れるようになりました。ローカル環境から送信専用のフロントエンドソフトを排除したことで、OSに対するターゲット監視の痕跡そのものが実質ゼロになっています。",
-      emuDeepText: "中継側PCのOSからは、ローカルの物理Bluetoothアダプタまたは対応コントローラチップにダイレクト接続。これらは入力信号の極小サンプリングスケジュールと完全に同期し、人と機械の動作を同じカーソル上に誤差皆無で調和させます。",
+      fwdDeepText: "スクリプトは生のUDP層を介して相対オフセットをブリッジへ直接送信します。メインPC側での中継ソフトが不要なため、ターゲット上の痕跡は実質ゼロです。",
+      emuDeepText: "専用Bluetoothアダプタを通じてパケットを送信し、アルゴリズムの補正と物理マウスの動きをカーソルのブレなく調和させます。",
       
       hwTitle: "推奨されるダブルPCハード構成",
       hwSetup: "ハードウェア構成",
@@ -200,15 +200,15 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
 
       speed1Label: "転送中継レイテンシ",
       speed1Title: "1ミリ秒未満の即応性",
-      speed1Desc: "中継データフレームは 125Hz-1000Hz の高サイクルで極パケット転送。指先が感じ取れるような不自然なラグは一切体感できません。",
+      speed1Desc: "125Hz–1000Hzの高サイクル通信により、遅延を感じさせない瞬時の反応速度を提供します。",
 
       speed2Label: "ペアリング形態",
       speed2Title: "本物のBluetoothペアリング",
-      speed2Desc: "内蔵 of 正規Bluetoothスタックで相互認証。余計な開発用署名付きドライバがメインPCのレジストリを汚す心配がありません。",
+      speed2Desc: "OS標準のBluetooth機能でペアリング。サードパーティ製ドライバのインストールは不要です。",
 
       speed3Label: "ネットワーク要求",
       speed3Title: "Wi-Fi 又は有線LANでの近距離結線",
-      speed3Desc: "家庭内のLAN環境を利用。外部のクラウドアドレスを経由せずに直接パケットを放り投げるため、インターネット回線の不通時にも影響されません。"
+      speed3Desc: "家庭内Wi-FiまたはLANケーブル直結に対応。外部インターネットを介さず安全に完結します。"
     }
   };
 
@@ -649,6 +649,55 @@ export default function OverviewTab({ onTabChange }: OverviewTabProps) {
                   <td className="p-4 font-bold text-stone-900">{comp.feature}</td>
                   <td className="p-4 text-stone-700 bg-stone-50/40 font-light">{comp.bridge}</td>
                   <td className="p-4 text-stone-400 font-light">{comp.software}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+      </section>
+
+      {/* Hardware Alternatives Comparison: Anthe vs KmBox vs Makcu */}
+      <section className="space-y-6">
+        <div className="space-y-1">
+          <span className="text-[10px] text-stone-400 font-mono uppercase tracking-widest">
+            {t.shop.comparisons.tag}
+          </span>
+          <h3 className="font-serif text-2xl font-semibold text-stone-950">
+            {t.shop.comparisons.title}
+          </h3>
+          <p className="text-xs text-stone-550 max-w-2xl font-light leading-relaxed">
+            {t.shop.comparisons.desc}
+          </p>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-white marble-slab-card overflow-x-auto"
+        >
+          <table className="w-full text-left border-collapse min-w-[700px]">
+            <thead>
+              <tr className="bg-stone-50 border-b border-stone-200 text-[10px] uppercase text-stone-500 tracking-wider">
+                <th className="p-4 font-bold text-stone-800">{t.shop.comparisons.metricsHeader}</th>
+                <th className="p-4 font-bold text-stone-950 bg-stone-100/50 relative">
+                  <span className="inline-block bg-stone-900 text-stone-100 font-mono text-[8px] tracking-widest px-2 py-0.5 rounded-full uppercase mr-2 align-middle">
+                    {t.shop.comparisons.badgeDigital}
+                  </span>
+                  {t.shop.comparisons.antheCol}
+                </th>
+                <th className="p-4 font-medium text-stone-500">KmBox (Hardware Board)</th>
+                <th className="p-4 font-medium text-stone-500">Makcu (Hardware Board)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100 text-xs text-stone-600 bg-white">
+              {t.shop.comparisons.rows.map((row: any, idx: number) => (
+                <tr key={idx} className="hover:bg-stone-50/50 transition-colors">
+                  <td className="p-4 font-bold text-stone-900 whitespace-nowrap">{row.metric}</td>
+                  <td className="p-4 text-stone-950 font-semibold bg-stone-50/40 leading-relaxed">{row.anthe}</td>
+                  <td className="p-4 text-stone-500 font-light leading-relaxed">{row.kmbox}</td>
+                  <td className="p-4 text-stone-500 font-light leading-relaxed">{row.makcu}</td>
                 </tr>
               ))}
             </tbody>

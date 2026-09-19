@@ -18,7 +18,7 @@ export const translations = {
       slogan: "accessible and assistive technology",
       pill: "Hardware-in-the-Loop Assistive Solution",
       mainTitle: "Network-to-Bluetooth Digital Bridge",
-      mainDesc: "Anthe is a high-performance, non-intrusive physical bridging system designed to route precise virtual input signals across a secure, air-gapped local network. By translating software inputs into standard, fully compliant Bluetooth device reports, Anthe enables seamless latency-free controls, advanced gaming assistance, and collaborative co-pilot input simulation—all without ever installing local drivers, software, or kernel-level hooks on your primary machine.",
+      mainDesc: "Anthe is a non-intrusive physical bridge that routes input signals across an isolated local network. By translating software inputs into standard Bluetooth HID reports, Anthe delivers latency-free control and collaborative input simulation—with zero drivers, background software, or kernel hooks on your primary machine.",
       ctaStart: "START SETUP GUIDE",
       ctaShop: "VIEW PRICING PLANS",
       stats: {
@@ -32,30 +32,30 @@ export const translations = {
       parts: {
         sectionTitle: "ACTIVE DATA FLOW ARCHITECTURE",
         title: "Dual-PC Physical Layer",
-        desc: "Interactive translation pathways. Mouse coordinates or AI streams are forwarded over standard UDP protocols, transformed independently, and broadcast as pure HID hardware packets.",
-        pc1Title: "Primary Device (e.g. Host PC)",
-        pc1Desc: "The main gaming computer running the application.",
-        pc1Rec: "The bridge outputs native Bluetooth mouse packets, meaning it can target virtually any system without any client software or drivers.",
-        pc2Title: "Secondary Bridge Device (any PC)",
-        pc2Desc: "A small secondary computer that translates network inputs into physical HID mouse packets, creating an air-gapped simulation.",
-        pc2Rec: "Functions completely independently. This is ideal for receiving automated AI coordinate streams from DMA boards or computer vision models."
+        desc: "Input coordinates are streamed over local UDP, processed on an isolated node, and broadcast as native Bluetooth HID reports.",
+        pc1Title: "Primary Device (Host PC)",
+        pc1Desc: "The primary host computer running your games or applications.",
+        pc1Rec: "Receives native Bluetooth mouse packets as standard hardware input, requiring no background software or drivers.",
+        pc2Title: "Secondary Bridge Device",
+        pc2Desc: "A dedicated secondary computer that receives network coordinates and translates them into physical HID mouse packets.",
+        pc2Rec: "Operates completely independently—ideal for handling coordinate streams from DMA hardware or vision models."
       },
       parameters: [
         {
           key: "Bypasses Modern Anti-Cheats",
-          val: "Bypasses intrusive kernel-level protections like Vanguard, Easy Anti-Cheat (EAC), and BattlEye. Because virtual input drivers are instantly blocked by modern anti-cheat modules, Anthe feeds inputs physically at the hardware level, presenting zero software signature on the game host."
+          val: "Bypasses kernel-level protections like Vanguard, EAC, and BattlEye. By delivering inputs as genuine Bluetooth hardware reports rather than virtual driver calls, Anthe leaves zero software signature on the game host."
         },
         {
-          key: "DMA / AI Aimbot Companion",
-          val: "The absolute gold standard for Direct Memory Access (DMA) hardware setups and external AI computer vision aimbots. It acts as the physical injection endpoint for neural-network coordinate outputs, keeping the aiming logic entirely off the host memory space."
+          key: "DMA & Vision AI Companion",
+          val: "Engineered for Direct Memory Access (DMA) hardware and external computer vision pipelines. It serves as the physical injection endpoint, keeping targeting calculations completely isolated from host memory."
         },
         {
           key: "100% Real Bluetooth Reports",
-          val: "Appears to the gaming PC as a standard human accessory. Moves are translated directly to physical Bluetooth or HID packages, delivering natural, perfectly smooth aiming curves without system warnings."
+          val: "Recognized by the host as a standard wireless mouse. Inputs are transmitted as native Bluetooth HID reports, ensuring smooth, natural cursor motion without detection warnings."
         },
         {
           key: "Co-Pilot Input Fusion",
-          val: "Enables multi-input co-pilot blending. Sews together artificial vector adjustments from your AI targeting engines with your physical hand corrections in real-time, yielding undetectable human-machine cooperation."
+          val: "Blends artificial vector adjustments with your physical mouse movements in real time, creating smooth, natural cooperative input."
         }
       ],
       comps: {
@@ -68,18 +68,18 @@ export const translations = {
         rows: [
           {
             feature: "Anti-Cheat Compliance (Vanguard/EAC)",
-            bridge: "100% Undetectable. Signals are received as genuine hardware reports from a standard bluetooth peripheral.",
-            software: "Blocked. Virtual drivers, SendInput hooks, and synthetic input signatures are flagged or blocked on startup."
+            bridge: "100% Undetectable. Signals are received as genuine hardware reports from a standard Bluetooth peripheral.",
+            software: "Blocked. Virtual drivers, SendInput hooks, and synthetic input signatures are flagged on startup."
           },
           {
             feature: "System Memory Footprint",
-            bridge: "No software touches the host memory space. Perfectly suited for isolated DMA logic and physical loop bypass.",
-            software: "Requires running active software processes, making it vulnerable to pattern scans, heuristic checks, and driver signature validation."
+            bridge: "Zero host memory footprint. All processing runs in an isolated hardware loop.",
+            software: "Requires active background processes vulnerable to signature scans, heuristics, and driver validation."
           },
           {
             feature: "AI / ConvNet Optimization",
-            bridge: "Inputs are injected with custom sub-millisecond precision directly matching external CV camera frame intervals.",
-            software: "Experiencing kernel-level queue delays and input lag due to background OS scheduler contention."
+            bridge: "Sub-millisecond injection timed precisely to external camera frame intervals.",
+            software: "Suffers from kernel queue delays and input latency caused by OS scheduler contention."
           }
         ]
       }
@@ -368,7 +368,7 @@ export const translations = {
       slogan: "无障碍与辅助技术桥梁",
       pill: "硬件在环辅助解决方案",
       mainTitle: "网络至蓝牙数字桥接",
-      mainDesc: "天御 是一款高精度、无感的物理信号桥接系统，专为在安全隔离的局域网（LAN）间传输和分发精准控制信号而设计。通过在硬件物理层将输入指令转化为标准的、完全合规且具备真实签名信息的蓝牙鼠标包报告，天御 为双输入协同操作以及高级无障碍辅助操作提供了极为顺畅、无时延的控制。主游戏主机无需部署任何本地辅助驱动、流式工具或内核钩子，实现真正的非侵入、无特征设计。",
+      mainDesc: "天御 是一款非侵入式物理信号桥接系统。通过将局域网内的控制指令转换为标准蓝牙 HID 硬件报告，天御 在主游戏机无需安装任何驱动、软件或内核钩子的情况下，实现零延迟输入与智能协同仿真。",
       ctaStart: "开始配置教程",
       ctaShop: "查看订阅方案",
       stats: {
@@ -382,30 +382,30 @@ export const translations = {
       parts: {
         sectionTitle: "活跃数据流架构",
         title: "双机物理层设计",
-        desc: "互动式转换拓扑。鼠标坐标或 AI 控制流通过标准 UDP 协议向前转发，独立进行数据封装，最后像纯硬件一般广播为真正符合规范的 HID 包。",
-        pc1Title: "主游戏终端 (PC/主机)",
-        pc1Desc: "运行您主力游戏或常规业务的目标主机终端。",
-        pc1Rec: "得益于桥接端原生的蓝牙协议转化发射特性，即使主控游戏环境不需要也无法安装任何客户前置转发软件，它依然能完美无忧地支持任意接收设备。",
-        pc2Title: "次级桥接设备 (任意电脑/电脑棒/树莓派)",
-        pc2Desc: "小型次的独立电脑，负责接收主端发来的网络报文并翻译为标准的物理/硬件层级 HID 鼠标控制指令，形成真正的空隙隔离物理桥接。",
-        pc2Rec: "完全自主运行。非常适合作为接收来自 DMA（直接内存访问）板卡或计算机视觉模型输出的最终模拟物理注入点。"
+        desc: "输入坐标经由本地 UDP 发送，在独立节点完成解析后，直接广播为合规的蓝牙 HID 硬件报告。",
+        pc1Title: "主游戏终端 (Host PC)",
+        pc1Desc: "运行游戏或主要应用程序的目标主机。",
+        pc1Rec: "原生接收标准蓝牙鼠标输入，无需在主机上安装任何客户端驱动或常驻软件。",
+        pc2Title: "次级桥接设备 (Secondary PC)",
+        pc2Desc: "独立运行的辅助计算设备，负责接收网络坐标并转换为物理 HID 鼠标报告。",
+        pc2Rec: "完全独立工作，是接入 DMA 板卡或计算机视觉模型输出的理想物理注入端点。"
       },
       parameters: [
         {
           key: "轻松绕过现代反作弊系统",
-          val: "完美规避如 Vanguard、Easy Anti-Cheat (EAC) 和 BattlEye 等内核级别的主动扫描防护。因为传统软件层面的虚拟输入驱动常常直接被限制启动，天御 从硬件层面发送标准指令，目标主机上没有留下任何特征码或未知软件句柄。"
+          val: "规避 Vanguard、EAC 与 BattlEye 等内核级防护。天御 从硬件层面输出标准蓝牙报告，主游戏机上零软件特征残留。"
         },
         {
           key: "DMA / AI 瞄准绝佳伴侣",
-          val: "这是极客圈针对 DMA (直接内存访问) 读写卡与外部计算机视觉 (CV) 辅助推理的黄金注入手段。它充当神经网络运算的目标向量物理输入终端，把所有辅助算法及坐标修正全部隔绝在主游戏机内存空间之外。"
+          val: "专为 DMA 硬件板卡与外部计算机视觉（CV）管线打造。作为纯物理注入端点，将所有目标解算完全隔绝在主游戏机内存之外。"
         },
         {
-          key: "100% 物理蓝牙报告率",
-          val: "对游戏电脑而言，天御 表现为一个百分之百标准的市售蓝牙外设。所有轨迹向量即时解算并被编码为蓝牙 HID 动作帧，控制丝滑如水，不会有任何驱动异常和安全弹窗。"
+          key: "100% 真实物理蓝牙报告",
+          val: "在主机上识别为普通市售无线鼠标。数据以标准蓝牙 HID 动作帧传输，轨迹自然平滑，无任何系统驱动告警。"
         },
         {
           key: "双人协导融合控制 (Co-Pilot)",
-          val: "支持多重输入智能融合重叠。它可以在亚毫秒级内，将 AI 算法产生的小幅度微调向量与您本身手部真实的挪动修正进行高速相加编码，产生如同人类自然操作的物理曲线。"
+          val: "支持多路输入智能融合。可在毫秒级内将算法微调向量与实体鼠标的手动轨迹自然叠合，实现浑然一体的人机协同操作。"
         }
       ],
       comps: {
@@ -423,13 +423,13 @@ export const translations = {
           },
           {
             feature: "主系统内存特征残留",
-            bridge: "主电脑上无任何控制库常驻，计算完全依靠二次桥接环境。特别适合空隙隔离的作弊分析和物理过滤。",
-            software: "必须在系统内留存正在运行的程序和通信数据检测特征，极易被反作弊检测内核扫描、启发式算法或者特征扫描直接定位。"
+            bridge: "主电脑上零特征残留，运算完全依靠外部物理节点，实现彻底的空隙隔离。",
+            software: "必须在系统内常驻运行进程与通信句柄，极易被内核扫描与启发式引擎捕获。"
           },
           {
             feature: "AI / 神经网络模型低延迟优化",
-            bridge: "输入帧精确对应外置摄像头或读取画面的采样周期，亚毫秒级同步传输写入硬件缓冲区。",
-            software: "由于操作系统（OS）调度负荷与多线程挤兑，容易在内核输入排队中造成几十毫秒的明显波动与迟滞。"
+            bridge: "输入帧精确对应外置摄像头或读取画面的采样周期，亚毫秒级同步写入硬件缓冲。",
+            software: "受操作系统调度与多线程竞争影响，易在内核排队中产生几十毫秒的波动与迟滞。"
           }
         ]
       }
@@ -718,7 +718,7 @@ export const translations = {
       slogan: "アクセシブルかつアシスティブ・テクノロジー",
       pill: "ハードウェア・イン・ザ・ループ支援ソリューション",
       mainTitle: "ネットワーク-Bluetooth物理橋接ブリッジ",
-      mainDesc: "Antheは、精密なバーチャル入力信号を安全かつ完全にエアギャップ（物理分離）されたローカルネットワーク上で転送できるように設計された、超低遅延で非侵入型の外付け中継ソリューションです。主PC側へドライバ、フック、特殊なエージェントソフトウェア等を一切インストールすることなく、入力信号を規格に準拠したBluetooth HIDマウスレポートへと変換します。これにより、アンチチートの監視フットプリントを完全に排除したセキュアなエイムアシスト、高精度アイトラッキング、人とマシンの円滑なコパイロット入力融合をもたらします。",
+      mainDesc: "Antheは、ローカルネットワーク経由で入力信号を安全に転送する非侵入型の物理ブリッジシステムです。ソフトウェア入力を規格準拠のBluetooth HIDレポートに直接変換することで、ゲームホストPCにドライバやフックを一切追加せず、遅延のない操作とシームレスな入力シミュレーションを実現します。",
       ctaStart: "構築ガイドを開始する",
       ctaShop: "ライセンス料金プランをみる",
       stats: {
@@ -732,30 +732,30 @@ export const translations = {
       parts: {
         sectionTitle: "リアルタイム・データ通信のフロー構造",
         title: "デュアルPC物理ブリッジング・トポロジー",
-        desc: "マウスクラスの座標データまたはAI移動補正ベクトルは、標準のUDPネットワークチャネルを介して高頻度で中継デバイスへと送信され、Bluetooth HID仕様規格の物理ワイヤレスパケットに最終デコードされます。",
+        desc: "入力座標はローカルUDP経由で送信され、独立したノードで変換された後、正規のBluetooth HIDレポートとして出力されます。",
         pc1Title: "プライマリPC（ゲーム動作本体等のホスト）",
-        pc1Desc: "あなたが主力として普段利用しているターゲットとなるゲームPCやモニター画面のことです。",
-        pc1Rec: "正規の物理Bluetoothデバイスとしてマウス信号を入力させるため、ゲーム用PC側に受信やパケット転送用といったエージェントソフト等を入れる必要がそもそも無くなり、クリーンで安全な状態を完全維持します。",
+        pc1Desc: "ゲームや主要アプリケーションが動作するメインホストPC。",
+        pc1Rec: "標準Bluetoothマウスパケットを受信するため、追加ドライバや常駐ソフトは不要です。",
         pc2Title: "セカンダリ・ブリッジ（PC/小型PC/ラズベリーパイなど）",
-        pc2Desc: "ネットワーク経由のベクトル入力を受信し、正規の物理マウス（HID規格）信号へとリアルタイムで解算・再エンコードする隔離デバイス。",
-        pc2Rec: "完全に自立して動作。DMAシステムや外部ニューラルネットワーク画像センサなどから送り出される軌道補正を受け入れるための最適なハードウェアエントリポイントとして機能します。"
+        pc2Desc: "ネットワーク経由の座標を受信し、物理HIDマウスパケットに変換する独立デバイス。",
+        pc2Rec: "完全に独立して動作し、DMAボードや画像認識モデルからの座標ストリームに最適です。"
       },
       parameters: [
         {
           key: "最新の強力なアンチチートを完全に回避",
-          val: "Vanguard、EAC (Easy Anti-Cheat)、BattlEye など、非常に厄介なカーネルレベルのアンチチートモジュールを完全にすり抜けます。従来のようなソフトウェアによる入力エミュレーションは直ちにブロック判定となりますが、Antheはハードウェア物理層に信号を直接ねじ込むため、ゲーム側にソフトウェア上のシグニチャを絶対に残しません。"
+          val: "Vanguard、EAC、BattlEyeなどのカーネル保護を回避。ソフトウェアドライバではなく本物のBluetoothハードウェアレポートを出力するため、ホスト側に検知痕跡を残しません。"
         },
         {
           key: "DMA / AI 補助エイムを完璧に統合",
-          val: "DMA(直接メモリアクセス) ボードおよび高度なディープラーニング画像解析ボットを極限まで活用するための世界的ゴールドスタンダードです。座標移動の補正ターゲット決定ロジックをホストマシンのメモリ共有領域の外へ追い出し、安全な空隙（エアギャップ）を確保します。"
+          val: "DMAハードウェアや外部AI視覚パイプライン向けに設計。物理的な注入エンドポイントとして機能し、計算ロジックをホストメモリから完全に隔離します。"
         },
         {
           key: "100% 準拠のリアルBluetoothデータフレーム",
-          val: "ゲームホストPC側からは、市販されている正規規格のBluetoothマウスと一切区別がつきません。移動制御は純正のHID無線パケットへと落とし込まれるため、軌道補正の軌跡は極めてナチュラルに動作します。"
+          val: "ホスト側からは通常の無線マウスとして認識されます。Bluetooth HIDフレームで直接出力されるため、自然で滑らかなカーソル操作を実現します。"
         },
         {
           key: "コパイロット・リアルタイム入力フュージョン",
-          val: "人間が操作する物理マウスの修正軌道と、AIが目標値として弾き出した移動補正ベクトルを、受信機側のデバイス内でシームレスにブレンドして出力する、全く新しい人とマシンの協調制御機能です。"
+          val: "AIによる微小な補正ベクトルと手元の物理マウス操作をリアルタイムで融合し、違和感のない協調入力を生み出します。"
         }
       ],
       comps: {

@@ -8,7 +8,6 @@ import DocumentationTab from './components/DocumentationTab';
 import TermsTab from './components/TermsTab';
 import DeveloperTab from './components/DeveloperTab';
 import AntheLogo from './components/AntheLogo';
-import MarbleBackground from './components/MarbleBackground';
 
 export default function App() {
   // Navigation State
@@ -17,9 +16,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen text-stone-800 font-sans relative overflow-hidden flex flex-col justify-between selection:bg-amber-100">
-      {/* Dynamic drifting black marble veins backdrop */}
-      <MarbleBackground language={language} />
-
       {/* Decorative Golden Line Accent top boundary */}
       <div className="h-[2px] w-full bg-gradient-to-r from-stone-250/30 via-stone-405/40 to-stone-250/30 z-50 relative" />
 

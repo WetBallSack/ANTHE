@@ -300,46 +300,6 @@ export default function ShopTab() {
 
       </div>
 
-      {/* Comparative Section: Anthe vs KmBox vs Makcu */}
-      <section className="space-y-8 max-w-5xl mx-auto px-4 mt-8 border-t border-stone-200/50 pt-16">
-        <div className="text-center space-y-2">
-          <span className="text-[10px] text-stone-400 font-mono uppercase tracking-widest">{t.shop.comparisons.tag}</span>
-          <h3 className="font-serif text-3xl font-light text-stone-950">{t.shop.comparisons.title}</h3>
-          <p className="text-xs text-stone-550 max-w-xl mx-auto font-light leading-relaxed">
-            {t.shop.comparisons.desc}
-          </p>
-        </div>
-
-        {/* Comparison Desktop Grid & Mobile Stack */}
-        <div className="overflow-hidden border border-stone-200/65 rounded-3xl bg-white shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[700px]">
-              <thead>
-                <tr className="bg-stone-50 border-b border-stone-200/65">
-                  <th className="p-4.5 font-sans font-semibold text-xs text-stone-900 tracking-wider">{t.shop.comparisons.metricsHeader}</th>
-                  <th className="p-4.5 font-sans font-bold text-xs text-stone-950 tracking-wider bg-stone-100/45 relative">
-                    <span className="absolute top-2 right-4 bg-stone-900 text-stone-100 font-mono text-[8px] tracking-widest px-2 py-0.5 rounded-full uppercase scale-90 text-[7px]">{t.shop.comparisons.badgeDigital}</span>
-                    {t.shop.comparisons.antheCol}
-                  </th>
-                  <th className="p-4.5 font-sans font-semibold text-xs text-stone-600 tracking-wider">KmBox (Hardware Board)</th>
-                  <th className="p-4.5 font-sans font-semibold text-xs text-stone-600 tracking-wider">Makcu (Hardware Board)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100 text-xs text-stone-600">
-                {t.shop.comparisons.rows.map((row: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-stone-50/50 transition-colors">
-                    <td className="p-4.5 font-semibold text-stone-850">{row.metric}</td>
-                    <td className="p-4.5 text-stone-950 font-bold bg-stone-100/20">{row.anthe}</td>
-                    <td className="p-4.5 text-stone-500 font-light">{row.kmbox}</td>
-                    <td className="p-4.5 text-stone-500 font-light">{row.makcu}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       {/* Terms of Service Popup Modal */}
       <AnimatePresence>
         {showTOSModal && (
