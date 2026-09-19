@@ -26,44 +26,71 @@ body {
   background-color: #d9d4ca;
 }
 
-.marble{
+.marble {
   position: fixed;
   inset: 0;
   z-index: -1;
   overflow: hidden;
   background: #d9d4ca;
+  pointer-events: none;
+  contain: strict;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
-.marble-plate{
+
+.marble-plate {
   position: absolute;
   top: -35%;
   left: -35%;
   width: 170%;
   height: 170%;
   transform: rotate(-3deg);
+  pointer-events: none;
+  contain: strict;
+  backface-visibility: hidden;
 }
-.marble-plate svg{
+
+.marble-layer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
-/* the two layers drift past each other, so the pattern never settles */
-.marble-veins{ animation: marble-drift-a 72s ease-in-out infinite alternate; }
-.marble-fines{ animation: marble-drift-b 46s ease-in-out infinite alternate; }
-
-@keyframes marble-drift-a{
-  from{ transform: translate3d(-2.2%, -1.1%, 0); }
-  to  { transform: translate3d( 2.2%,  1.1%, 0); }
-}
-@keyframes marble-drift-b{
-  from{ transform: translate3d( 2.4%,  1%, 0); }
-  to  { transform: translate3d(-2.4%, -1%, 0); }
+.marble-plate svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
 }
 
-@media (prefers-reduced-motion: reduce){
-  .marble-plate svg{ animation: none; }
+/* the two layers drift past each other on the compositor thread without re-rasterizing the SVG filters */
+.marble-veins-layer { 
+  animation: marble-drift-a 72s ease-in-out infinite alternate; 
+}
+.marble-fines-layer { 
+  animation: marble-drift-b 46s ease-in-out infinite alternate; 
+}
+
+@keyframes marble-drift-a {
+  from { transform: translate3d(-2.2%, -1.1%, 0); }
+  to   { transform: translate3d( 2.2%,  1.1%, 0); }
+}
+
+@keyframes marble-drift-b {
+  from { transform: translate3d( 2.4%,  1%, 0); }
+  to   { transform: translate3d(-2.4%, -1%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marble-layer { animation: none; }
 }
 
 .ivory-marble-bg {
@@ -101,6 +128,8 @@ body {
     0 12px 35px -15px rgba(27, 25, 23, 0.05), /* subtle drop shadow for depth */
     0 0 18px 4px rgba(255, 255, 255, 1),       /* brilliant outward light glow */
     inset 0 0 12px 3px rgba(255, 255, 255, 1);    /* brilliant inward light glow */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .marble-slab-card-interactive {
@@ -111,6 +140,8 @@ body {
     0 0 12px 2px rgba(255, 255, 255, 1),
     inset 0 0 8px 2px rgba(255, 255, 255, 1);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .marble-slab-card-interactive:hover {
@@ -120,16 +151,16 @@ body {
     0 16px 40px -15px rgba(27, 25, 23, 0.06), 
     0 0 24px 6px rgba(255, 255, 255, 1),
     inset 0 0 15px 4px rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
 }
 
 /* Horizontal rolling endless marquee animation */
 @keyframes marquee {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(-33.3333%);
+    transform: translate3d(-33.3333%, 0, 0);
   }
 }
 
@@ -137,6 +168,9 @@ body {
   display: flex;
   width: max-content;
   animation: marquee 35s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .animate-marquee:hover {

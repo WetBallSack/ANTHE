@@ -12,44 +12,48 @@
     <div class="marble" aria-hidden="true">
       <div class="marble-plate">
 
-        <svg class="marble-veins" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <filter id="marble-crema-a" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.0006 0.0011" numOctaves="2" seed="5" result="n0"/>
-            <feComponentTransfer in="n0" result="b0">
-              <feFuncA type="linear" slope="0.22" intercept="0"/>
-            </feComponentTransfer>
-            <feGaussianBlur in="b0" stdDeviation="6" result="s0"/>
-            <feFlood flood-color="#c6c0b1" flood-opacity="1" result="f0"/>
-            <feComposite in="f0" in2="s0" operator="in" result="cloud"/>
-            <feTurbulence type="fractalNoise" baseFrequency="0.0038 0.0007" numOctaves="3" seed="21" result="n1"/>
-            <feComponentTransfer in="n1" result="b1">
-              <feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0"/>
-            </feComponentTransfer>
-            <feGaussianBlur in="b1" stdDeviation="0.6" result="s1"/>
-            <feFlood flood-color="#8a8375" flood-opacity="0.2" result="f1"/>
-            <feComposite in="f1" in2="s1" operator="in" result="vein"/>
-            <feMerge>
-              <feMergeNode in="SourceGraphic"/>
-              <feMergeNode in="cloud"/>
-              <feMergeNode in="vein"/>
-            </feMerge>
-          </filter>
-          <rect width="100%" height="100%" fill="#d9d4ca" filter="url(#marble-crema-a)"/>
-        </svg>
+        <div class="marble-layer marble-veins-layer">
+          <svg class="marble-veins" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <filter id="marble-crema-a" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.0006 0.0011" numOctaves="2" seed="5" result="n0"/>
+              <feComponentTransfer in="n0" result="b0">
+                <feFuncA type="linear" slope="0.22" intercept="0"/>
+              </feComponentTransfer>
+              <feGaussianBlur in="b0" stdDeviation="6" result="s0"/>
+              <feFlood flood-color="#c6c0b1" flood-opacity="1" result="f0"/>
+              <feComposite in="f0" in2="s0" operator="in" result="cloud"/>
+              <feTurbulence type="fractalNoise" baseFrequency="0.0038 0.0007" numOctaves="3" seed="21" result="n1"/>
+              <feComponentTransfer in="n1" result="b1">
+                <feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0"/>
+              </feComponentTransfer>
+              <feGaussianBlur in="b1" stdDeviation="0.6" result="s1"/>
+              <feFlood flood-color="#8a8375" flood-opacity="0.2" result="f1"/>
+              <feComposite in="f1" in2="s1" operator="in" result="vein"/>
+              <feMerge>
+                <feMergeNode in="SourceGraphic"/>
+                <feMergeNode in="cloud"/>
+                <feMergeNode in="vein"/>
+              </feMerge>
+            </filter>
+            <rect width="100%" height="100%" fill="#d9d4ca" filter="url(#marble-crema-a)"/>
+          </svg>
+        </div>
 
-        <svg class="marble-fines" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <filter id="marble-crema-b" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.009 0.0018" numOctaves="4" seed="9" result="n1"/>
-            <feComponentTransfer in="n1" result="b1">
-              <feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0"/>
-            </feComponentTransfer>
-            <feGaussianBlur in="b1" stdDeviation="0.4" result="s1"/>
-            <feFlood flood-color="#9c9384" flood-opacity="0.13" result="f1"/>
-            <feComposite in="f1" in2="s1" operator="in" result="vein"/>
-          </filter>
-          <!-- this fill never shows: the filter above does not merge SourceGraphic -->
-          <rect width="100%" height="100%" fill="#000" filter="url(#marble-crema-b)"/>
-        </svg>
+        <div class="marble-layer marble-fines-layer">
+          <svg class="marble-fines" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <filter id="marble-crema-b" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.009 0.0018" numOctaves="4" seed="9" result="n1"/>
+              <feComponentTransfer in="n1" result="b1">
+                <feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0"/>
+              </feComponentTransfer>
+              <feGaussianBlur in="b1" stdDeviation="0.4" result="s1"/>
+              <feFlood flood-color="#9c9384" flood-opacity="0.13" result="f1"/>
+              <feComposite in="f1" in2="s1" operator="in" result="vein"/>
+            </filter>
+            <!-- this fill never shows: the filter above does not merge SourceGraphic -->
+            <rect width="100%" height="100%" fill="#000" filter="url(#marble-crema-b)"/>
+          </svg>
+        </div>
 
       </div>
     </div>

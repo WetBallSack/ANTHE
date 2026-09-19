@@ -32,7 +32,7 @@ export default function App() {
           </div>
 
           {/* Navigation Items (Designed like premium hotel tabs) */}
-          <nav className="flex flex-wrap items-center gap-1 bg-white/70 border border-stone-200/50 p-1.5 rounded-2xl sm:rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.01)] relative overflow-hidden backdrop-blur-lg justify-center">
+          <nav className="flex flex-wrap items-center gap-1 bg-white/70 border border-stone-200/50 p-1.5 rounded-2xl sm:rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.01)] relative overflow-hidden backdrop-blur-lg justify-center transform-gpu">
             <button
               onClick={() => setActiveTab('overview')}
               className={`px-3.5 sm:px-5 py-2 rounded-full text-xs font-serif font-medium tracking-wide transition-all ${
@@ -152,7 +152,7 @@ export default function App() {
       </main>
 
       {/* FOOTER SECTION: Minimal Apple-style bottom showcase bar */}
-      <footer className="relative z-10 border-t border-stone-200/40 bg-white/60 backdrop-blur-md py-10">
+      <footer className="relative z-10 border-t border-stone-200/40 bg-white/60 backdrop-blur-md py-10 transform-gpu">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-[11px] text-stone-500 font-light">
           <div className="flex flex-col sm:flex-row items-center gap-3">
             <div className="flex items-center gap-3">
