@@ -29,59 +29,35 @@ body {
 .marble {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   background: #d9d4ca;
   pointer-events: none;
-  contain: strict;
-  isolation: isolate;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
 }
 
-.marble-plate {
+.marble::before,
+.marble::after {
+  content: "";
   position: absolute;
-  top: -35%;
-  left: -35%;
-  width: 170%;
-  height: 170%;
-  transform: rotate(-3deg);
-  pointer-events: none;
-  contain: strict;
-  backface-visibility: hidden;
-}
-
-.marble-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-}
-
-.marble-plate svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+  inset: -6%;
+  background-size: 1920px 1200px;
+  background-repeat: repeat;
   pointer-events: none;
 }
 
-/* the two layers drift past each other on the compositor thread without re-rasterizing the SVG filters */
-.marble-veins-layer { 
-  animation: marble-drift-a 72s ease-in-out infinite alternate; 
-}
-.marble-fines-layer { 
-  animation: marble-drift-b 46s ease-in-out infinite alternate; 
+.marble::before {
+  background-image: url("/marble-base.webp");
+  animation: marble-drift 90s ease-in-out infinite alternate;
 }
 
-@keyframes marble-drift-a {
-  from { transform: translate3d(-2.2%, -1.1%, 0); }
-  to   { transform: translate3d( 2.2%,  1.1%, 0); }
+.marble::after {
+  background-image: url("/marble-veil.webp");
+  animation: marble-drift-b 58s ease-in-out infinite alternate;
+}
+
+@keyframes marble-drift {
+  from { transform: translate3d(-2%, -1%, 0); }
+  to   { transform: translate3d( 2%,  1%, 0); }
 }
 
 @keyframes marble-drift-b {
@@ -90,7 +66,16 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marble-layer { animation: none; }
+  .marble::before,
+  .marble::after { 
+    animation: none; 
+  }
+}
+
+/* Content sits above background */
+#root, .site, main {
+  position: relative;
+  z-index: 1;
 }
 
 .ivory-marble-bg {
