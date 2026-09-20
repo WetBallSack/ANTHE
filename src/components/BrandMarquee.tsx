@@ -1,17 +1,21 @@
 import React from 'react';
+import { GodaiLogo } from './GodaiLogo';
 
 interface BrandMarqueeProps {
   title: string;
 }
 
 export default function BrandMarquee({ title }: BrandMarqueeProps) {
-  // We only keep pure GODAI text and replicate it for seamless scrolling
+  // Marquee items featuring the official GODAI logo lockup
   const brands = Array.from({ length: 8 }, (_, i) => ({
-    id: `goda-${i}`,
+    id: `godai-${i}`,
     element: (
-      <span className="font-sans text-xl font-bold tracking-[0.25em] text-stone-500 hover:text-stone-800 transition-colors duration-300 select-none">
-        GODAI
-      </span>
+      <div
+        className="text-[#101113]/75 hover:text-[#101113] transition-colors duration-300 select-none flex items-center justify-center py-1"
+        title="GODAI"
+      >
+        <GodaiLogo className="w-[170px] sm:w-[200px] h-auto block" />
+      </div>
     ),
   }));
 
