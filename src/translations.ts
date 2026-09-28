@@ -347,6 +347,39 @@ export const translations = {
       sec3Desc: "Below are code templates in C#/.NET, C++, and Python showing how to establish a socket targeting a Linux receiver at IPv4 address 192.168.1.100 and port 5555.",
       copyBtn: "Copy template",
       copiedBtn: "Copied!"
+    },
+    notFound: {
+      badge: "0x0194 · ROUTE UNRESOLVED",
+      code: "404",
+      title: "Endpoint Out of Range",
+      subtitle: "The requested route does not resolve to an active hardware bridge or virtual node. Check your URL address or reroute via active channels below.",
+      statusLabel: "Bridge Status",
+      statusValue: "No Active Carrier",
+      pathLabel: "Requested Route",
+      diagnosticsTitle: "Bridge Diagnostic Packet",
+      packetCode: "0x404_ERR_UNRESOLVED_ROUTE",
+      busStatus: "Air-gap Isolation Active",
+      backHome: "Return to Home",
+      docsBtn: "Browse Documentation",
+      faqBtn: "Hardware Specifications",
+      shopBtn: "Shop & Licenses",
+      developerBtn: "Developer API",
+      supportPrefix: "Need assistance with your configuration? Contact support at",
+      quickLinksTitle: "Known Active Endpoints",
+      searchPlaceholder: "Search routes (e.g. /overview, /shop, /developer)...",
+      testRouteBtn: "Simulate Unknown Route",
+      diagnosticDetails: {
+        protocol: "Protocol",
+        protocolVal: "UDP / HID Bridge Relay",
+        port: "Socket Port",
+        portVal: "5555 (Disconnected)",
+        magic: "Frame Sentinel",
+        magicVal: "0xAB (Missing)",
+        latency: "Bus Latency",
+        latencyVal: "Infinity (Timeout)",
+        verdict: "Resolution",
+        verdictVal: "404 - Drop Frame"
+      }
     }
   },
   zh: {
@@ -697,6 +730,39 @@ export const translations = {
       sec3Desc: "可在客户端应用程序中直接采用的生产级异步套接字发送模板。高度优化，专为不阻塞主渲染线程设计。",
       copyBtn: "复制代码模板",
       copiedBtn: "已复制!"
+    },
+    notFound: {
+      badge: "0x0194 · 寻址未命中",
+      code: "404",
+      title: "端点超出作用域",
+      subtitle: "所请求的网络路由未能解析到任何活跃的物理硬件网桥或虚拟节点。请检查您的访问地址，或通过下方活跃通信信道重新接入。",
+      statusLabel: "网桥连接状态",
+      statusValue: "无活跃载波",
+      pathLabel: "请求的目标路径",
+      diagnosticsTitle: "硬件网桥诊断包",
+      packetCode: "0x404_ERR_UNRESOLVED_ROUTE",
+      busStatus: "物理隔离保护处于开启状态",
+      backHome: "返回系统主页",
+      docsBtn: "查阅配置文档",
+      faqBtn: "硬件规格与常见问答",
+      shopBtn: "商店与许可订阅",
+      developerBtn: "开发者 API 集成",
+      supportPrefix: "配置过程中遇到异常？请直接联系技术支持邮箱",
+      quickLinksTitle: "已知活跃通信端点",
+      searchPlaceholder: "搜索系统路由 (如 /overview, /shop, /developer)...",
+      testRouteBtn: "测试未知路由",
+      diagnosticDetails: {
+        protocol: "通信协议",
+        protocolVal: "UDP / HID 物理网桥中继",
+        port: "网络套接字端口",
+        portVal: "5555 (已断开)",
+        magic: "同步哨兵帧",
+        magicVal: "0xAB (缺失)",
+        latency: "总线延迟",
+        latencyVal: "无穷大 (超时)",
+        verdict: "判定结果",
+        verdictVal: "404 - 丢弃数据帧"
+      }
     }
   },
   ja: {
@@ -1047,6 +1113,39 @@ export const translations = {
       sec3Desc: "非同期スレッド処理・描画やメインフックのブロック遅延を防ぐように最適化された、すぐにサービス投入可能な高パフォーマンス送信コード群です。",
       copyBtn: "コードをコピー",
       copiedBtn: "コピー完了!"
+    },
+    notFound: {
+      badge: "0x0194 · 未解決のルーティング",
+      code: "404",
+      title: "エンドポイントが見つかりません",
+      subtitle: "要求されたネットワークパスは、稼働中のハードウェアブリッジまたは仮想ノードに解決できませんでした。URLをご確認いただくか、以下の稼働中チャンネルよりアクセスしてください。",
+      statusLabel: "ブリッジ状態",
+      statusValue: "アクティブキャリアなし",
+      pathLabel: "リクエストされたパス",
+      diagnosticsTitle: "ブリッジ診断パケット",
+      packetCode: "0x404_ERR_UNRESOLVED_ROUTE",
+      busStatus: "物理エアギャップ分離がアクティブです",
+      backHome: "ホームに戻る",
+      docsBtn: "ドキュメントを見る",
+      faqBtn: "仕様とFAQ",
+      shopBtn: "ショップ・ライセンス",
+      developerBtn: "開発者APIガイド",
+      supportPrefix: "設定でお困りですか？サポート窓口にお問い合わせください：",
+      quickLinksTitle: "登録済みアクティブ・エンドポイント",
+      searchPlaceholder: "ルートを検索 (例: /overview, /shop, /developer)...",
+      testRouteBtn: "テスト用未解決ルートを試す",
+      diagnosticDetails: {
+        protocol: "通信プロトコル",
+        protocolVal: "UDP / HID 物理ブリッジリレー",
+        port: "ソケットポート",
+        portVal: "5555 (未接続)",
+        magic: "フレームセンチネル",
+        magicVal: "0xAB (欠損)",
+        latency: "バス遅延",
+        latencyVal: "無限大 (タイムアウト)",
+        verdict: "ルーティング判定",
+        verdictVal: "404 - フレーム破棄"
+      }
     }
   }
 };
