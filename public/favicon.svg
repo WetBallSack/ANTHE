@@ -1,5 +1,11 @@
-<svg viewBox="0 0 105 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M15 80 L47 15 L60 15 L28 80 Z" fill="black" />
-  <path d="M62 80 L78 45 L90 45 L74 80 Z" fill="black" />
-  <path d="M34 80 L45 55 L56 80 Z" fill="black" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 105 100" fill="none">
+  <style>
+    path { fill: #1C1B19; }
+    @media (prefers-color-scheme: dark) {
+      path { fill: #F5F3EF; }
+    }
+  </style>
+  <path d="M15 80 L47 15 L60 15 L28 80 Z" />
+  <path d="M62 80 L78 45 L90 45 L74 80 Z" />
+  <path d="M34 80 L45 55 L56 80 Z" />
 </svg>
